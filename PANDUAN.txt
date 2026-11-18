@@ -16,6 +16,11 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
   bentuk chord kunci C.
 - DETEKSI CHORD: menebak chord dari file audio/MP3/MP4 hasil
   unduhan YouTube, lengkap dengan estimasi kunci lagu.
+  SEJAK v1.0.6 deteksi jauh lebih halus — perubahan chord
+  tertangkap dari awal sampai musiknya habis (dulu lagu 4 menit
+  bisa runtuh jadi 4 blok raksasa; sekarang progresi 12 chord
+  terlacak 12/12 di tes), dan baris chord TIDAK dipotong lagi.
+  Ada pilihan "Kehalusan deteksi": Kasar / Normal / Halus.
 - LIRIK OTOMATIS (v1.0.5): setelah deteksi, klik "Kirim ke
   Transposisi + Lirik" — ChordKu mencari lirik lagu di layanan
   gratis lrclib.net memakai kolom "Judul lagu", lalu MENYUSUN
@@ -95,6 +100,14 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
 ------------------------------------------------
 - Pilih file audio (.wav, .mp3, .m4a, .flac, dll) atau hasil
   unduhan YouTube.
+- Pilih "Kehalusan deteksi" (v1.0.6):
+  * Kasar  - perubahan chord jarang ditangkap (audio berisik).
+  * Normal - seimbang, cocok untuk kebanyakan lagu.
+  * Halus  - paling banyak perubahan chord tertangkap; pakai ini
+    kalau hasil deteksi terasa "nyangkut" di satu chord saja.
+  Deteksi kini berjalan sampai musiknya habis dan baris chord
+  yang dikirim ke Transposisi tidak dipotong lagi (bug lama:
+  hanya 64 chord pertama + "...").
 - Klik "Deteksi Chord" dan tunggu beberapa saat.
 - Hasil: urutan chord berwaktu + estimasi kunci lagu, dan panel
   "Ilustrasi chord yang terdeteksi" di bawahnya menampilkan cara

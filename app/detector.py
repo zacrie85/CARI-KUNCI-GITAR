@@ -28,6 +28,14 @@ FMIN_HZ = 65.0
 FMAX_HZ = 2100.0
 MIN_SEG_SEC = 0.8
 
+# Penalti perpindahan chord (delta Viterbi). Skala skor cosine 0..1 dan
+# selisih antar template per frame biasanya 0.05..0.2, jadi delta 1.5
+# membuat jalur "nyangkut" di satu chord bermenit-menit (bug v1.0.5-:
+# lagu 4 menit hanya 4 segmen). Nilai di bawah dikalibrasi ulang.
+SENSITIVITY = {'kasar': 0.80, 'normal': 0.45, 'halus': 0.25}
+DEFAULT_SENS = 'normal'
+SMOOTH_FRAMES = 5  # perataan temporal ringan (~0.46 detik)
+
 # ---------------------------------------------------------------- audio I/O
 def find_ffmpeg():
     """
@@ -189,19 +197,46 @@ def _cosine(emission, templates):
     t = templates / (np.linalg.norm(templates, axis=1, keepdims=True) + 1e-9)
     return e @ t.T
 
+def _smooth_chroma(chroma, w=SMOOTH_FRAMES):
+    """Perataan temporal ringan (rata-rata bergerak) per kelas nada.
+
+    Menekan frame frame acak tanpa menghapus perubahan chord asli
+    (jendela hanya ~0.46 detik). Tepi memakai replikasi (mode 'edge').
+    """
+    if w <= 1 or len(chroma) < 3:
+        return chroma
+    kernel = np.ones(w, dtype=np.float32) / float(w)
+    pad = w // 2
+    padded = np.pad(chroma, ((pad, pad), (0, 0)), mode='edge')
+    sm = np.empty_like(chroma, dtype=np.float32)
+    for k in range(chroma.shape[1]):
+        sm[:, k] = np.convolve(padded[:, k], kernel, mode='valid')[:len(chroma)]
+    norm = np.linalg.norm(sm, axis=1, keepdims=True)
+    norm[norm == 0] = 1.0
+    return sm / norm
+
+
 # ---------------------------------------------------------------- viterbi
-def viterbi_path(scores, delta=1.5):
+def viterbi_path(scores, delta=1.5, free_frames=None):
     """
     HMM sederhana: pindah chord dikenakan penalti `delta` (log),
-    bertahan gratis. Penalti kecil agar perubahan chord asli tetap terdeteksi.
+    bertahan gratis.
+
+    free_frames: boolean per frame. Pada frame bebas (mis. bagian
+    sunyi/instrumental tanpa energi) perpindahan antar chord TIDAK
+    dikenakan penalti, sehingga jalur bisa "meluncur" ke chord yang
+    benar saat musik masuk lagi, bukan menempel di chord lama.
     """
     T, S = scores.shape
     trans = np.full((S, S), -delta, dtype=np.float32)
     np.fill_diagonal(trans, 0.0)
+    trans_free = np.zeros((S, S), dtype=np.float32)
     dp = scores[0].copy()
     bp = np.zeros((T, S), dtype=np.int32)
     for t in range(1, T):
-        cand = dp[:, None] + trans          # S x S
+        tr = trans_free if (free_frames is not None and free_frames[t]) \
+            else trans
+        cand = dp[:, None] + tr          # S x S
         bp[t] = np.argmax(cand, axis=0)
         dp = cand[bp[t], np.arange(S)] + scores[t]
     path = np.zeros(T, dtype=np.int32)
@@ -246,18 +281,24 @@ def _fmt_time(sec):
     return '%02d:%02d' % (sec // 60, sec % 60)
 
 
-def detect_file(path, progress_cb=None):
+def detect_file(path, progress_cb=None, sensitivity=DEFAULT_SENS):
     """
     Deteksi chord sebuah file audio.
+
+    sensitivity: 'kasar' | 'normal' | 'halus' — seberapa mudah chord
+    berganti (halus = lebih banyak perubahan tertangkap).
     Return dict: segments [(mulai, selesai, chord)], key, confidence,
-    chord_line, duration, notation_flats.
+    chord_line (LENGKAP sampai akhir lagu), duration, notation_flats.
     """
+    sens = str(sensitivity or DEFAULT_SENS).strip().lower()
+    delta = SENSITIVITY.get(sens, SENSITIVITY[DEFAULT_SENS])
     y, sr = load_audio(path, progress_cb)
     duration = len(y) / float(sr)
     if duration < 2.0:
         raise RuntimeError('Audio terlalu pendek (minimum 2 detik).')
 
     chroma = chromagram(y, sr, progress_cb)
+    chroma = _smooth_chroma(chroma)
     if progress_cb:
         progress_cb(0.72, 'Mencocokkan template chord...')
 
@@ -265,11 +306,12 @@ def detect_file(path, progress_cb=None):
     scores = _cosine(chroma, templates)
     # bobot energi: frame sunyi diabaikan (skor diturunkan)
     energy = chroma.max(axis=1)
-    scores = scores * (energy[:, None] > 0.05)
+    silent = ~(energy > 0.05)
+    scores = scores * (~silent)[:, None]
 
     if progress_cb:
-        progress_cb(0.80, 'Merapikan urutan chord (Viterbi)...')
-    path_states = viterbi_path(scores)
+        progress_cb(0.80, 'Merapikan urutan chord (Viterbi, %s)...' % sens)
+    path_states = viterbi_path(scores, delta=delta, free_frames=silent)
     times = np.arange(len(path_states)) * HOP_SIZE / float(sr)
 
     from .transposer import FLAT_NAMES
@@ -306,9 +348,8 @@ def detect_file(path, progress_cb=None):
         chord_line = transpose_sheet(chord_line, 0, True)
         segments = [(a, b, transpose_sheet(c, 0, True)) for a, b, c in segments]
 
+    # chord line LENGKAP — tanpa potongan, sampai musiknya habis
     chord_line = ' '.join(s[2] for s in segments)
-    if len(segments) > 64:
-        chord_line = ' '.join(s[2] for s in segments[:64]) + ' ...'
 
     if progress_cb:
         progress_cb(1.0, 'Selesai.')

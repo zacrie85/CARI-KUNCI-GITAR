@@ -61,6 +61,15 @@ def build(parent, ctx):
                             command=lambda: _detect(ctx, path_var, bar,
                                                     status_var, detect_btn))
     detect_btn.pack(side='left')
+    ttk.Label(action_row, text='Kehalusan deteksi:',
+              style='PMuted.TLabel').pack(side='left', padx=(16, 4))
+    sens_var = ctx.refs['detect_sens'] = tk.StringVar(value='Normal')
+    ttk.Combobox(action_row, textvariable=sens_var,
+                 values=('Kasar', 'Normal', 'Halus'),
+                 state='readonly', width=8).pack(side='left')
+    ttk.Label(action_row, text='Halus = lebih banyak perubahan chord '
+                               'tertangkap sampai akhir lagu.',
+              style='PMuted.TLabel').pack(side='left', padx=(8, 0))
 
     ffmpeg = det.find_ffmpeg()
     note = ('ffmpeg ditemukan: bisa memproses MP3/MP4/M4A/FLAC.' if ffmpeg
@@ -122,7 +131,7 @@ def _detect(ctx, path_var, bar, status_var, button):
         return
 
     def work(prog):
-        return det.detect_file(path, prog)
+        return det.detect_file(path, prog, sensitivity=sens_val)
 
     def on_prog(pct, msg):
         bar['value'] = pct
@@ -138,13 +147,16 @@ def _detect(ctx, path_var, bar, status_var, button):
             judul.set(lyr.parse_title_from_filename(path_var.get()))
         text = (
             'Kunci terdeteksi   : %s (keyakinan %s, r=%.2f)\n'
+            'Kehalusan          : %s\n'
             'Durasi             : %d menit %02d detik\n'
             'Jumlah segmen chord: %d\n'
             '-----------------------------------------------\n\n'
             '%s\n\n-----------------------------------------------\n'
-            'Baris chord (untuk tab Transposisi):\n%s'
+            'Baris chord (untuk tab Transposisi, LENGKAP sampai akhir '
+            'lagu):\n%s'
             % (result['key'], result['confidence_label'],
-               result['confidence'], int(result['duration']) // 60,
+               result['confidence'], sens_val,
+               int(result['duration']) // 60,
                int(result['duration']) % 60, len(result['segments']),
                result['timeline'], result['chord_line']))
         out = ctx.refs.get('detect_result_text')
@@ -173,6 +185,10 @@ def _detect(ctx, path_var, bar, status_var, button):
 
     button['state'] = 'disabled'
     status_var.set('Memulai...')
+    # baca pilihan kehalusan di thread utama (StringVar tidak boleh
+    # disentuh dari thread latar belakang)
+    sens = ctx.refs.get('detect_sens')
+    sens_val = sens.get().strip().lower() if sens else 'normal'
     run_bg(ctx, work, on_done=on_done, on_progress=on_prog, on_error=on_err)
 
 
