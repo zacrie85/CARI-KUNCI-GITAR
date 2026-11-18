@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+"""ChordKu - Teks panduan (dipakai tab Panduan dan file PANDUAN.txt)."""
+
+GUIDE_TEXT = """================================================================
+CARI KUNCI GITAR (ChordKu) - PANDUAN PENGGUNAAN
+Aplikasi deteksi & transposisi chord gitar untuk Windows
+================================================================
+
+1) APA YANG BISA DILAKUKAN APLIKASI INI
+------------------------------------------------
+- TRANSPOSISI CHORD: geser kunci lagu ke nada lain. Contoh: lagu
+  "Pujaan Hati" (Kangen Band) aslinya kunci C; jika kamu ingin
+  memainkannya dari kunci D, aplikasi menggeser seluruh chord:
+  C G Am Em F Dm  ->  D A Bm F#m G Em
+- SEMUA KUNCI ALTERNATIF: menampilkan lagu yang sama di 12 kunci.
+- SARAN CAPO: misal kunci D cukup pasang capo fret 2 lalu pakai
+  bentuk chord kunci C.
+- DETEKSI CHORD: menebak chord dari file audio/MP3/MP4 hasil
+  unduhan YouTube, lengkap dengan estimasi kunci lagu.
+- YOUTUBE: mengunduh audio dari tautan YouTube secara langsung
+  (bawaan yt-dlp), atau memakai tool eksternal seperti
+  "Zac Downloader" yang sudah terpasang di PC-mu.
+- SIMPAN LAGU: menyimpan sheet chord ke database untuk dipakai
+  lagi nanti, plus kamus jari chord dasar.
+
+PENTING: hasil deteksi chord adalah PERKIRAAN (best-effort).
+Selalu periksa kembali dengan telinga dan perbaiki manual bila perlu.
+
+2) CARA CEPAT MENJALANKAN (dari kode sumber)
+------------------------------------------------
+a. Pasang Python 3.10+ dari https://www.python.org/downloads/
+   (saat install, centang "Add Python to PATH").
+b. Buka folder aplikasi, klik dua kali: setup.bat
+   (memasang numpy dan yt-dlp otomatis).
+c. Klik dua kali: jalankan.bat  -> aplikasi terbuka.
+   (atau lewat CMD:  python chordku.py)
+
+3) MEMBUAT FILE .exe (agar tinggal klik tanpa Python)
+------------------------------------------------
+a. Pastikan langkah 2 sudah berhasil.
+b. Buka CMD di folder aplikasi dan jalankan: build_exe.bat
+c. Hasilnya ada di folder dist\\ChordKu.exe.
+d. Catatan SmartScreen: saat pertama dibuka, pilih
+   "More info" -> "Run anyway".
+
+4) MENGUNDUH DARI YOUTUBE (tab YouTube)
+------------------------------------------------
+- Tempel URL/tautan YouTube lalu klik "Download Audio (MP3)".
+  File tersimpan di folder downloads\\.
+- Butuh koneksi internet. Jika gagal karena pembatasan YouTube,
+  coba perbarui yt-dlp:  pip install -U yt-dlp
+- MEMAKAI ZAC DOWNLOADER (tool eksternal):
+  1. Pasang Zac Downloader di PC-mu (jika sudah punya, lewati).
+  2. Di tab YouTube bagian "Tool Eksternal", klik "Pilih...",
+     arahkan ke Zac Downloader.exe (atau shortcut-nya).
+  3. Klik "Buka Tool Eksternal" -> unduh video musik lewat tool itu.
+  4. Klik "Muat File Terakhir ke Deteksi" untuk mengambil file
+     hasil unduhan ke tab Deteksi Chord.
+
+5) DETEKSI CHORD (tab Deteksi)
+------------------------------------------------
+- Pilih file audio (.wav, .mp3, .m4a, .flac, dll) atau hasil
+  unduhan YouTube.
+- Klik "Deteksi Chord" dan tunggu beberapa saat.
+- Hasil: urutan chord berwaktu + estimasi kunci lagu.
+- Klik "Kirim ke Transposisi" untuk menggeser hasil deteksi ke
+  kunci lain.
+- KONVERSI AUDIO butuh FFMPEG. Kalau deteksi file non-wav gagal:
+  1. Unduh ffmpeg dari https://ffmpeg.org/download.html atau
+     https://github.com/BtbN/FFmpeg-Builds/releases
+  2. Salin ffmpeg.exe ke sebelah ChordKu.exe (atau tambahkan ke
+     PATH Windows).
+
+6) TIPS DETEKSI & TRANSPOSISI
+------------------------------------------------
+- Audio vokal/instrumen terlalu ramai = deteksi makin sulit.
+  Gunakan audio sejelas mungkin (backing track/instrumen lebih
+  baik daripada rekaman konser).
+- Untuk lagu dengan kunci dasar sederhana (C, G, D, A, E), hasil
+  deteksi biasanya paling akurat.
+- Kalau lagu asli pakai kunci "sus/tambah nada", aplikasi
+  menampilkan chord terdekat; lanjutkan secara manual.
+- Transposisi juga bekerja untuk sheet dari situs chord: salin
+  teksnya (termasuk lirik) lalu tempel di tab Transposisi. Kata
+  lirik tidak akan ikut tergeser, hanya chord-nya.
+
+7) STRUKTUR FOLDER
+------------------------------------------------
+chordku.py         : pemanggil utama aplikasi
+app\\              : kode program (engine, UI, deteksi, dll)
+samples\\          : contoh sheet chord (Pujaan Hati - kunci C)
+downloads\\        : hasil unduhan audio dari YouTube
+requirements.txt   : daftar pustaka Python yang perlu dipasang
+build_exe.bat      : membuat ChordKu.exe (PyInstaller)
+setup.bat          : memasang dependensi
+jalankan.bat       : menjalankan aplikasi dari kode sumber
+chordku.db         : database lagu tersimpan (dibuat otomatis)
+config.json        : pengaturan (dibuat otomatis)
+
+8) MASALAH UMUM
+------------------------------------------------
+- "yt-dlp belum terpasang"  -> jalankan setup.bat, atau
+  pip install -U yt-dlp
+- "Format .mp3 butuh ffmpeg" -> pasang ffmpeg (lihat bagian 5)
+- Jendela tidak terbuka     -> jalankan dari CMD: python chordku.py
+  agar pesan galat terlihat; kirim pesan galat itu saat melapor.
+- Hasil deteksi terdengar salah -> wajar (perkiraan). Ubah manual
+  atau transpose dari kunci yang kamu yakini benar.
+
+9) HAK CIPTA
+------------------------------------------------
+Aplikasi ini hanya alat bantu belajar musik. Video/audio yang
+diunduh dari YouTube tetap milik pemilik hak ciptanya. Gunakan
+untuk keperluan pribadi/pendidikan, bukan untuk didistribusikan.
+"""
