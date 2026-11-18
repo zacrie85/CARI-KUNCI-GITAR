@@ -13,12 +13,38 @@ def app_dir():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+_DATA_DIR = None
+
+
+def data_dir():
+    """Folder data tulis (db + config): di sebelah aplikasi bila bisa
+    ditulis, kalau tidak (mis. terpasang di Program Files oleh
+    installer Zac Downloader) -> %APPDATA%/ChordKu (v1.0.7)."""
+    global _DATA_DIR
+    if _DATA_DIR:
+        return _DATA_DIR
+    probe = os.path.join(app_dir(), '.write_probe')
+    try:
+        with open(probe, 'w') as f:
+            f.write('ok')
+        os.unlink(probe)
+        _DATA_DIR = app_dir()
+    except Exception:
+        base = os.environ.get('APPDATA') or os.path.expanduser('~')
+        _DATA_DIR = os.path.join(base, 'ChordKu')
+    try:
+        os.makedirs(_DATA_DIR, exist_ok=True)
+    except Exception:
+        pass
+    return _DATA_DIR
+
+
 def _db_path():
-    return os.path.join(app_dir(), 'chordku.db')
+    return os.path.join(data_dir(), 'chordku.db')
 
 
 def _config_path():
-    return os.path.join(app_dir(), 'config.json')
+    return os.path.join(data_dir(), 'config.json')
 
 
 class SongDB:
@@ -76,9 +102,11 @@ class SongDB:
 
 
 DEFAULT_CONFIG = {
-    'download_dir': os.path.join(app_dir(), 'downloads'),
+    'download_dir': os.path.join(data_dir(), 'downloads'),
     'external_tool_path': '',
     'last_youtube_url': '',
+    'zac_auto_detect': True,     # file dari Zac Downloader langsung dideteksi
+    'zac_bridge_last_ts': 0.0,   # posisi pesan jembatan terakhir diproses
 }
 
 

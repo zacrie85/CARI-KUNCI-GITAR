@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ChordKu - jendela utama (tema futuristik merah-putih-emas) + utilitas."""
+import os
 import queue
 import threading
 import tkinter as tk
@@ -7,7 +8,8 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.6'
+APP_VERSION = '1.0.7'
+APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v' + APP_VERSION
 
 # ------------------------------------------------------------ palet tema
 BG = '#120A0E'          # latar sangat gelap bernuansa maroon
@@ -290,6 +292,8 @@ def launch():
         ctx.refs['tab_index'][key] = len(nb.tabs())
         nb.add(frame, text=' ' + text + ' ')
 
+    _start_zac_bridge(ctx)
+
     def on_close():
         try:
             ctx.db.close()
@@ -300,3 +304,77 @@ def launch():
     root.protocol('WM_DELETE_WINDOW', on_close)
     root.mainloop()
     return 0
+
+
+# ---------------------------------------------------------------- jembatan
+# v1.0.7: Jalur Zac Downloader — inbox.json (link/file dari Zac) dibaca
+# rutin dan dialirkan ke UI: URL -> Unduhan Bawaan / Browser YouTube
+# tersemat, file audio -> tab Deteksi (bisa auto-deteksi).
+def _dispatch_zac_message(ctx, msg):
+    mode = str(msg.get('mode') or 'url')
+    url = str(msg.get('url') or '').strip()
+    path = str(msg.get('path') or '').strip()
+    source = str(msg.get('source') or 'Zac Downloader')
+    nb = ctx.refs.get('notebook')
+
+    def flash(text):
+        var = ctx.refs.get('yt_zac_status')
+        if var is not None:
+            var.set(text)
+
+    if mode == 'file' and path and os.path.isfile(path):
+        if nb is not None:
+            nb.select(ctx.refs['tab_index']['detect'])
+        pvar = ctx.refs.get('detect_path')
+        if pvar is not None:
+            pvar.set(path)
+        svar = ctx.refs.get('detect_status')
+        if svar is not None:
+            svar.set('File dari Zac Downloader siap: %s'
+                     % os.path.basename(path))
+        flash('File dari %s masuk ke tab Deteksi: %s'
+              % (source, os.path.basename(path)))
+        if ctx.config.get('zac_auto_detect', True):
+            from . import tab_detect as td
+            td._detect(ctx, pvar, ctx.refs.get('detect_bar'),
+                       ctx.refs.get('detect_status'),
+                       ctx.refs.get('detect_btn'))
+        return
+
+    if mode in ('url', 'browser', 'both') and url:
+        if nb is not None:
+            nb.select(ctx.refs['tab_index']['youtube'])
+        uv = ctx.refs.get('yt_url_var')
+        if uv is not None and mode in ('url', 'both'):
+            uv.set(url)
+        flash('Diterima dari %s: %s' % (source, url[:80]))
+        if mode in ('browser', 'both'):
+            from . import tab_youtube as ty
+            ty._open_browser(ctx, ctx.refs.get('yt_auto_var'),
+                             ctx.refs.get('yt_br_status'), uv,
+                             start_url=url)
+
+
+def _start_zac_bridge(ctx, interval_ms=800):
+    from . import zac_bridge as zbr
+    state = {
+        'last_ts': float(ctx.config.get('zac_bridge_last_ts', 0.0) or 0.0),
+        'tick': 0,
+    }
+
+    def tick():
+        try:
+            state['tick'] += 1
+            if state['tick'] % 3 == 0:  # detak jantung ~2.4 detik
+                zbr.write_status(APP_VERSION)
+            msg = zbr.read_message()
+            if zbr.is_message_new(msg, state['last_ts']):
+                state['last_ts'] = float(msg.get('ts') or 0.0)
+                ctx.config['zac_bridge_last_ts'] = state['last_ts']
+                save_config(ctx.config)
+                _dispatch_zac_message(ctx, msg)
+        except Exception:
+            pass  # jembatan tidak boleh menjatuhkan aplikasi
+        ctx.root.after(interval_ms, tick)
+
+    ctx.root.after(1200, tick)

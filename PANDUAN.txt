@@ -27,6 +27,10 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
   sheet lengkap: baris chord di atas baris liriknya (align
   mengikuti waktu deteksi), intro ditulis "Intro : C G Am ...",
   kunci asal terisi otomatis — langsung siap di-transpose.
+- JALUR ZAC DOWNLOADER (v1.0.7): ditempel penuh ke Zac Downloader
+  v1.7.0+ — link dari browser Zac otomatis masuk Unduhan Bawaan &
+  Browser YouTube tersemat, file hasil download Zac langsung
+  masuk tab Deteksi (lihat bagian 9).
 - ILUSTRASI CHORD: diagram fretboard (senar kayu + titik jari merah)
   untuk chord-chord dalam lagu, muncul otomatis di tab Transposisi
   dan tab Deteksi — tinggal ikuti cara menekan senarnya.
@@ -193,10 +197,31 @@ config.json        : pengaturan (dibuat otomatis)
   dari kode sumber? Pasang ffmpeg (lihat bagian 5).
 - Jendela tidak terbuka     -> jalankan dari CMD: python chordku.py
   agar pesan galat terlihat; kirim pesan galat itu saat melapor.
-- Hasil deteksi terdengar salah -> wajar (perkiraan). Ubah manual
+- HASIL DETEKSI TERDENGAR SALAH -> wajar (perkiraan). Ubah manual
   atau transpose dari kunci yang kamu yakini benar.
 
-9) HAK CIPTA
+9) TERINTEGRASI ZAC DOWNLOADER (v1.0.7)
+------------------------------------------------
+ChordKu kini ditempel sepenuhnya ke dalam Zac Downloader v1.7.0+
+(tombol "Buka ChordKu" di panel kiri Zac Downloader). Semua fitur
+Zac Downloader tetap utuh, dan ada 3 jalur otomatis:
+
+- JALUR LINK: di browser Zac Downloader klik tombol
+  "🎸 Kirim ke ChordKu" -> URL halaman otomatis masuk kolom
+  "URL YouTube" (Unduhan Bawaan) DAN Browser YouTube tersemat
+  ChordKu terbuka langsung di video itu.
+- JALUR BROWSER: halaman hub ChordKu di Zac Downloader memuat
+  tombol kirim per-mode (Unduhan saja / Browser saja / keduanya).
+- JALUR FILE: setiap file MP3/MP4 di "Hasil Download" Zac
+  Downloader punya tombol 🎸 -> file langsung masuk tab Deteksi
+  ChordKu dan (bila "Auto-deteksi file dari Zac" aktif, default)
+  deteksi chord langsung berjalan sampai akhir lagu.
+
+Komunikasi memakai folder file JSON %APPDATA%\ZacChordKuBridge
+(tanpa internet, tanpa port). ChordKu menandai kehadirannya lewat
+status.json — Zac Downloader menampilkan "ChordKu: AKTIF".
+
+10) HAK CIPTA
 ------------------------------------------------
 Aplikasi ini hanya alat bantu belajar musik. Video/audio yang
 diunduh dari YouTube tetap milik pemilik hak ciptanya. Gunakan

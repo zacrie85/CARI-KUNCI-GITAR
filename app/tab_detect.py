@@ -7,6 +7,7 @@ from tkinter import ttk, filedialog, messagebox, simpledialog
 from . import detector as det
 from . import lyrics as lyr
 from . import sheet_builder as sheetb
+from .database import save_config
 from .chord_canvas import ChordGrid
 from .gui import PANEL, TEXT, MUTED, MONO, run_bg, diagram_colors, \
     load_into_transposer
@@ -70,6 +71,17 @@ def build(parent, ctx):
     ttk.Label(action_row, text='Halus = lebih banyak perubahan chord '
                                'tertangkap sampai akhir lagu.',
               style='PMuted.TLabel').pack(side='left', padx=(8, 0))
+    # v1.0.7: jalur Zac Downloader — simpan referensi widget agar pesan
+    # jembatan bisa mengisi file & menjalankan deteksi otomatis
+    ctx.refs['detect_bar'] = bar
+    ctx.refs['detect_status'] = status_var
+    ctx.refs['detect_btn'] = detect_btn
+    ctx.refs['zac_auto_detect'] = tk.BooleanVar(
+        value=bool(ctx.config.get('zac_auto_detect', True)))
+    ttk.Checkbutton(action_row, text='🎸 Auto-deteksi file dari Zac',
+                    variable=ctx.refs['zac_auto_detect'],
+                    command=lambda: _save_zac_auto(ctx)).pack(
+        side='left', padx=(10, 0))
 
     ffmpeg = det.find_ffmpeg()
     note = ('ffmpeg ditemukan: bisa memproses MP3/MP4/M4A/FLAC.' if ffmpeg
@@ -121,6 +133,15 @@ def _choose_file(path_var, judul_var):
         path_var.set(p)
         if not judul_var.get().strip():
             judul_var.set(lyr.parse_title_from_filename(p))
+
+
+def _save_zac_auto(ctx):
+    """v1.0.7: simpan pilihan auto-deteksi file dari Zac Downloader."""
+    var = ctx.refs.get('zac_auto_detect')
+    if var is None:
+        return
+    ctx.config['zac_auto_detect'] = bool(var.get())
+    save_config(ctx.config)
 
 
 def _detect(ctx, path_var, bar, status_var, button):

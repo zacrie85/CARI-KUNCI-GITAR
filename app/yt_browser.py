@@ -135,6 +135,17 @@ class YouTubeBrowser(object):
         with self._lock:
             self.on_url = on_url
             self.on_status = on_status
+            if self.window is not None:
+                # v1.0.7: pakai ulang jendela yang sudah terbuka —
+                # navigasi ke URL baru (jembatan Zac Downloader) alih-
+                # alih menumpuk jendela baru.
+                try:
+                    self.window.load_url(start_url or DEFAULT_START)
+                    self._notify('Browser YouTube pindah ke: %s'
+                                 % (start_url or DEFAULT_START))
+                except Exception:
+                    pass
+                return self.window
             api = YouTubeBrowser._Api(self)
             self.window = webview.create_window(
                 'Browser YouTube - ChordKu (Zac Downloader tersemat)',

@@ -7,7 +7,7 @@ from tkinter import ttk, filedialog, messagebox
 from . import downloader as dl
 from . import yt_browser as ytb
 from . import lyrics as lyr
-from .gui import PANEL, MUTED, run_bg
+from .gui import PANEL, MUTED, GOLD, run_bg
 
 
 def build(parent, ctx):
@@ -18,6 +18,7 @@ def build(parent, ctx):
 
     # url_var dibuat lebih awal agar bisa dipakai browser & pencarian
     url_var = tk.StringVar(value=ctx.config.get('last_youtube_url', ''))
+    ctx.refs['yt_url_var'] = url_var  # v1.0.7: jalur Zac Downloader
 
     # ------------------------------------------ 1) browser tersemat
     br = ttk.LabelFrame(parent, text='  Browser YouTube — Zac Downloader '
@@ -35,11 +36,13 @@ def build(parent, ctx):
                command=lambda: ytb.open_in_system_browser()).pack(
         side='left', padx=6)
     auto_var = tk.BooleanVar(value=True)
+    ctx.refs['yt_auto_var'] = auto_var  # v1.0.7: jalur Zac Downloader
     ttk.Checkbutton(row_b, text='URL video otomatis masuk Unduhan Bawaan',
                     variable=auto_var).pack(side='left', padx=(12, 0))
 
     ok, note = ytb.webview_available()
     br_status = tk.StringVar(value=note)
+    ctx.refs['yt_br_status'] = br_status  # v1.0.7: jalur Zac Downloader
     ttk.Label(br, textvariable=br_status, style='PMuted.TLabel',
               justify='left').grid(row=1, column=0, columnspan=2, sticky='w',
                                    padx=8)
@@ -159,6 +162,14 @@ def build(parent, ctx):
               foreground='#FF6B81' if not mode else MUTED).grid(
         row=3, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
 
+    # v1.0.7: status jalur Zac Downloader (URL/file masuk otomatis)
+    ctx.refs['yt_zac_status'] = tk.StringVar(
+        value='Jalur Zac Downloader: aktif — link & file dari Zac '
+              'Downloader otomatis masuk ke sini.')
+    ttk.Label(top, textvariable=ctx.refs['yt_zac_status'],
+              style='PMuted.TLabel', foreground=GOLD).grid(
+        row=4, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
+
     # ------------------------------------------ 4) tool eksternal
     ext = ttk.LabelFrame(parent,
                          text='  Tool eksternal (opsional, mis. Zac '
@@ -205,7 +216,7 @@ def _apply_captured_url(ctx, url_var, status_var, auto_var, url):
         status_var.set('Video terbuka (auto-isi mati): %s' % url)
 
 
-def _open_browser(ctx, auto_var, status_var, url_var):
+def _open_browser(ctx, auto_var, status_var, url_var, start_url=None):
     def on_url(url):
         def apply():
             _apply_captured_url(ctx, url_var, status_var, auto_var, url)
@@ -221,7 +232,8 @@ def _open_browser(ctx, auto_var, status_var, url_var):
             pass
 
     try:
-        ytb.open_browser(on_url=on_url, on_status=on_status)
+        ytb.open_browser(start_url=start_url, on_url=on_url,
+                         on_status=on_status)
     except Exception as e:
         status_var.set('Gagal membuka browser: %s' % e)
         messagebox.showwarning(
