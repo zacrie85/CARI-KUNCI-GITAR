@@ -19,6 +19,12 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
   bentuk chord kunci C.
 - DETEKSI CHORD: menebak chord dari file audio/MP3/MP4 hasil
   unduhan YouTube, lengkap dengan estimasi kunci lagu.
+- LIRIK OTOMATIS (v1.0.5): setelah deteksi, klik "Kirim ke
+  Transposisi + Lirik" — ChordKu mencari lirik lagu di layanan
+  gratis lrclib.net memakai kolom "Judul lagu", lalu MENYUSUN
+  sheet lengkap: baris chord di atas baris liriknya (align
+  mengikuti waktu deteksi), intro ditulis "Intro : C G Am ...",
+  kunci asal terisi otomatis — langsung siap di-transpose.
 - ILUSTRASI CHORD: diagram fretboard (senar kayu + titik jari merah)
   untuk chord-chord dalam lagu, muncul otomatis di tab Transposisi
   dan tab Deteksi — tinggal ikuti cara menekan senarnya.
@@ -97,8 +103,23 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
   "Ilustrasi chord yang terdeteksi" di bawahnya menampilkan cara
   menekan tiap chord (senar vertikal, titik merah = posisi jari,
   O = senar dibuka, X = tidak dipetik).
-- Klik "Kirim ke Transposisi" untuk menggeser hasil deteksi ke
-  kunci lain.
+- LIRIK OTOMATIS (v1.0.5):
+  1. Kolom "Judul lagu (untuk ambil lirik)" terisi otomatis dari
+     judul unduhan YouTube atau nama file audio; koreksi saja
+     bila salah ketik.
+  2. Klik "Kirim ke Transposisi + Lirik" -> ChordKu mencari lirik
+     di lrclib.net (API publik gratis, tanpa akun) dan menyusun
+     sheet LIRIK + CHORD di tab Transposisi: baris chord tepat di
+     atas baris liriknya mengikuti waktu deteksi, bagian sebelum
+     lirik pertama menjadi "Intro : ...".
+  3. Kalau lirik tidak ditemukan (judul salah / lagu belum ada /
+     internet bermasalah), muncul pilihan "kirim CHORD SAJA".
+  4. Lirik diambil on the fly untuk penggunaan pribadi — aplikasi
+     tidak menyimpan file lirik di dalam paketnya.
+- Tombol "Kirim ke Transposisi (chord saja)" tetap ada bila kamu
+  hanya ingin chordnya tanpa lirik. Jika deteksi tidak
+  menghasilkan chord sama sekali, muncul peringatan (coba audio
+  yang lebih jelas).
 - KONVERSI AUDIO: sejak v1.0.1, ChordKu.exe sudah MEMBAWA ffmpeg
   sendiri di dalamnya (di-bundle saat build), jadi file MP3, M4A,
   WEBM, FLAC, dan MP4 langsung bisa dideteksi tanpa memasang

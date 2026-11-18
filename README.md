@@ -17,6 +17,7 @@ semua chord alternatifnya dan saran posisi capo.
 | **12 kunci alternatif** | Satu klik menampilkan lagu yang sama di semua kunci (C sampai B). |
 | **Saran capo** | Misal kunci D cukup capo fret 2 lalu pakai bentuk kunci C. |
 | **Deteksi chord** | Chroma + template matching + Viterbi (metode buku teks MIR) menebak urutan chord berwaktu dari file audio, plus estimasi kunci lagu (Krumhansl-Schmuckler). |
+| **Lirik otomatis (v1.0.5)** | Setelah deteksi, tombol **"Kirim ke Transposisi + Lirik"** mencari lirik lagu di **lrclib.net** (API publik gratis) memakai kolom "Judul lagu" (terisi otomatis dari judul YouTube/nama file), lalu menyusun **sheet lirik + chord**: baris chord di atas baris liriknya sesuai waktu deteksi, bagian pembuka jadi `Intro : ...` — langsung siap di-transpose. Gagal cari lirik → pilihan kirim chord saja. |
 | **Ilustrasi chord (v1.0.2)** | Diagram fretboard (papan kayu, titik jari merah bernomor, penanda O/X, bentuk barre otomatis dengan label `2fr`/`4fr`) untuk semua chord unik dalam lagu — muncul di tab Transposisi & Deteksi. |
 | **YouTube** | **Browser YouTube tersemat (v1.0.3, mesin WebView2/Edge)**: jelajahi YouTube di dalam aplikasi — begitu video terbuka, URL otomatis masuk Unduhan Bawaan `yt-dlp` → unduh MP3 (ffmpeg ter-bundle). Plus pencarian terintegrasi & tool eksternal **Zac Downloader** (opsional). |
 | **Kamus jari** | Pola jari chord yang dipakai ditampilkan otomatis (format `x32010`). |

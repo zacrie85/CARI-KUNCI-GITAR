@@ -6,6 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 
 from . import downloader as dl
 from . import yt_browser as ytb
+from . import lyrics as lyr
 from .gui import PANEL, MUTED, run_bg
 
 
@@ -352,6 +353,10 @@ def _download(ctx, url_var, bar, status_var, button):
                                'File: %s\n\nMuat file ini ke tab Deteksi '
                                'Chord sekarang?' % os.path.basename(res[0])):
             ctx.refs['detect_path'].set(res[0])
+            judul = ctx.refs.get('detect_judul')
+            if judul is not None:
+                judul.set(lyr.parse_title_from_filename(
+                    res[1] or res[0]))
             ctx.refs['notebook'].select(ctx.refs['tab_index']['detect'])
 
     def on_err(msg):
@@ -392,6 +397,9 @@ def _load_last(ctx):
                             % ctx.config['download_dir'])
         return
     ctx.refs['detect_path'].set(path)
+    judul = ctx.refs.get('detect_judul')
+    if judul is not None:
+        judul.set(lyr.parse_title_from_filename(path))
     ctx.refs['notebook'].select(ctx.refs['tab_index']['detect'])
     messagebox.showinfo('Siap dideteksi',
                         'File dimuat ke tab Deteksi Chord:\n%s'

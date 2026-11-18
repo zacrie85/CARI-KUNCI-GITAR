@@ -7,7 +7,7 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.4'
+APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.5'
 
 # ------------------------------------------------------------ palet tema
 BG = '#120A0E'          # latar sangat gelap bernuansa maroon
@@ -89,10 +89,13 @@ def run_bg(ctx, fn, on_done=None, on_progress=None, on_error=None):
 
 
 def load_into_transposer(ctx, text, from_key=None):
-    """Isi tab Transposisi dari tab lain, lalu pindah ke sana."""
+    """Isi tab Transposisi dari tab lain, lalu pindah ke sana.
+
+    Return False (tanpa mengubah apa pun) bila tab belum siap atau
+    teks yang dikirim kosong — pencegah dialog "Belum ada sheet"."""
     w = ctx.refs.get('transpose_input')
-    if w is None:
-        return
+    if w is None or not (text or '').strip():
+        return False
     w.delete('1.0', 'end')
     w.insert('1.0', text)
     if from_key:
@@ -103,6 +106,7 @@ def load_into_transposer(ctx, text, from_key=None):
     idx = ctx.refs.get('tab_index', {}).get('transpose', 0)
     if nb is not None:
         nb.select(idx)
+    return True
 
 
 def _match_key(key):
