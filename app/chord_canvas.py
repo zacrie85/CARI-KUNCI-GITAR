@@ -153,6 +153,16 @@ class ChordGrid(tk.Frame):
                 uniq.append(ch)
                 if len(uniq) >= limit:
                     break
+        if not uniq:
+            # state kosong: petunjuk, bukan kanvas kosong yang tampak rusak
+            self.canvas.create_text(
+                12, 66, anchor='w',
+                text='Belum ada chord — muat contoh, tempel sheet, buka file '
+                     '.txt, atau jalankan deteksi/transposisi.',
+                fill=self._colors.get('muted', MUTED),
+                font=('Segoe UI', 9, 'italic'))
+            self.canvas.configure(scrollregion=(0, 0, 1, 140))
+            return
         x = 6
         for ch in uniq:
             d = ChordDiagram(self.canvas, ch, colors=self._colors)

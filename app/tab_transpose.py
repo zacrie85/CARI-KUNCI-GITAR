@@ -80,18 +80,46 @@ def build(parent, ctx):
 
     capo_var = tk.StringVar(value='Saran capo akan muncul di sini setelah '
                                  'transposisi.')
+    ctx.refs['transpose_capo'] = capo_var
     ttk.Label(right, textvariable=capo_var, style='PMuted.TLabel',
               wraplength=420, justify='left').grid(
         row=1, column=0, sticky='ew', padx=10, pady=(0, 8))
 
     # --------------------------------- ilustrasi chord (diagram fretboard)
+    # v1.0.9: ilustrasi kini OTOMATIS muncul saat sheet dimuat (contoh,
+    # file .txt, tempel, kirim dari Zac, atau diketik) — dulu hanya
+    # muncul setelah tombol Transpose ditekan. Setelah transposisi,
+    # ilustrasi mengikuti chord kunci tujuan.
     ilus = ttk.LabelFrame(parent, text='  Ilustrasi chord lagu ini (senar '
                                        'vertikal, jari di dalam titik; O = '
                                        'dibuka, X = tidak dipetik)  ')
     ilus.pack(fill='x', padx=12, pady=(4, 2))
     grid = ChordGrid(ilus, colors=diagram_colors())
     grid.pack(fill='x', padx=6, pady=(0, 6))
+    grid.set_chords([])
     ctx.refs['transpose_chords'] = grid
+
+    _ilus_job = {'id': None}
+
+    def _update_ilus():
+        _ilus_job['id'] = None
+        grid = ctx.refs.get('transpose_chords')
+        if grid is None:
+            return
+        try:
+            text = input_txt.get('1.0', 'end').strip()
+        except tk.TclError:
+            return
+        grid.set_chords(_unique_chords(text, limit=14), limit=14)
+
+    def _on_input_change(_event=None):
+        if _ilus_job['id'] is not None:
+            parent.after_cancel(_ilus_job['id'])
+        _ilus_job['id'] = parent.after(350, _update_ilus)
+        input_txt.edit_modified(False)   # biarkan event <<Modified>> berikutnya tetap datang
+
+    input_txt.bind('<<Modified>>', _on_input_change)
+    _update_ilus()
 
     # ------------------------------------------------ bawah: kontrol
     ctrl = ttk.Frame(parent)
@@ -113,6 +141,7 @@ def build(parent, ctx):
     ctx.refs['transpose_to'] = to_var
 
     shift_var = tk.StringVar(value='')
+    ctx.refs['transpose_shift'] = shift_var
     ttk.Label(ctrl, textvariable=shift_var, style='Muted.TLabel').pack(
         side='left', padx=(0, 10), fill='x', expand=True)
 
@@ -240,10 +269,10 @@ def _do_transpose(ctx, input_txt, output_txt, from_var, to_var, shift_var,
     ctx.refs['last_transposed'] = new_text
     ctx.refs['last_keys'] = (from_key, to_key)
 
-    # ilustrasi chord sesuai lagu yang ditransposisi
+    # ilustrasi chord sesuai lagu yang ditransposisi (kunci tujuan)
     grid = ctx.refs.get('transpose_chords')
     if grid is not None:
-        grid.set_chords(chords, limit=12)
+        grid.set_chords(chords, limit=14)
 
 
 def _show_all_keys(ctx, input_txt, from_var):

@@ -34,6 +34,11 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
 - ILUSTRASI CHORD: diagram fretboard (senar kayu + titik jari merah)
   untuk chord-chord dalam lagu, muncul otomatis di tab Transposisi
   dan tab Deteksi — tinggal ikuti cara menekan senarnya.
+  v1.0.9: di tab Transposisi ilustrasi kini SEGERA muncul begitu
+  sheet dimuat (Muat Contoh, Buka File .txt, tempel teks, atau kirim
+  dari Zac) — tidak perlu menekan Transpose dulu; setelah Transpose,
+  diagram ikut berganti ke chord kunci tujuan. Kanvas kosong
+  menampilkan petunjuk, bukan area kosong.
 - BROWSER YOUTUBE TERSEMAT: jendela browser sungguhan (mesin
   WebView2/Edge bawaan Windows) bisa dibuka dari dalam aplikasi —
   jelajahi YouTube seperti biasa, dan begitu halaman video terbuka
