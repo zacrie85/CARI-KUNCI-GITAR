@@ -7,7 +7,7 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.2'
+APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.3'
 
 # ------------------------------------------------------------ palet tema
 BG = '#120A0E'          # latar sangat gelap bernuansa maroon
@@ -256,8 +256,8 @@ def _apply_style(root):
 def launch():
     root = tk.Tk()
     root.title(APP_TITLE)
-    root.geometry('1100x760')
-    root.minsize(940, 640)
+    root.geometry('1100x820')
+    root.minsize(940, 700)
     _apply_style(root)
     ctx = Ctx(root)
     make_header(root)

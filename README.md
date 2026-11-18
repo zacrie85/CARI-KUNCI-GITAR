@@ -18,7 +18,7 @@ semua chord alternatifnya dan saran posisi capo.
 | **Saran capo** | Misal kunci D cukup capo fret 2 lalu pakai bentuk kunci C. |
 | **Deteksi chord** | Chroma + template matching + Viterbi (metode buku teks MIR) menebak urutan chord berwaktu dari file audio, plus estimasi kunci lagu (Krumhansl-Schmuckler). |
 | **Ilustrasi chord (v1.0.2)** | Diagram fretboard (papan kayu, titik jari merah bernomor, penanda O/X, bentuk barre otomatis dengan label `2fr`/`4fr`) untuk semua chord unik dalam lagu — muncul di tab Transposisi & Deteksi. |
-| **YouTube** | **Pencarian musik terintegrasi (v1.0.2)**: ketik judul/artis → daftar hasil → URL langsung masuk ke Unduhan Bawaan `yt-dlp` → unduh MP3 (ffmpeg ter-bundle). Tool eksternal seperti **Zac Downloader** tetap didukung (opsional). |
+| **YouTube** | **Browser YouTube tersemat (v1.0.3, mesin WebView2/Edge)**: jelajahi YouTube di dalam aplikasi — begitu video terbuka, URL otomatis masuk Unduhan Bawaan `yt-dlp` → unduh MP3 (ffmpeg ter-bundle). Plus pencarian terintegrasi & tool eksternal **Zac Downloader** (opsional). |
 | **Kamus jari** | Pola jari chord yang dipakai ditampilkan otomatis (format `x32010`). |
 | **Simpan lagu** | Sheet tersimpan di `chordku.db` (SQLite) — muat ulang, ekspor `.txt`, hapus. |
 
@@ -50,8 +50,8 @@ Kunci D : Intro : D  A  Bm  F#m G  D  Em  A
 ## 🎵 Alur YouTube
 
 ```
+Browser tersemat (WebView2) ──► buka video ──► URL otomatis ──► Unduhan Bawaan
 Cari musik (terintegrasi) ──► klik-dua-kali hasil ──► URL masuk Unduhan Bawaan
-                                                              │
 URL tempel manual ────────────────────────────────────────────┤
                                                               ▼
                         yt-dlp + ffmpeg ter-bundle ──► MP3 ──► tab Deteksi
@@ -62,9 +62,10 @@ URL tempel manual ────────────────────�
 Alternatif: Zac Downloader (tool eksternal) ──► "Muat File Terakhir"
 ```
 
-Catatan: `zac-downloader` (github.com/zacrie85/zac-downloader) tetap didukung
-sebagai slot *tool eksternal*, tetapi sejak v1.0.2 pencarian & unduh musik
-bisa dilakukan sepenuhnya di dalam ChordKu tanpa aplikasi lain.
+Catatan: sejak v1.0.3 ChordKu membawa **browser YouTube tersemat** (pywebview +
+WebView2/Edge bawaan Windows 10-11): YouTube dibuka penuh di dalam aplikasi
+dan URL video mengalir otomatis ke unduhan. Slot `zac-downloader` eksternal
+tetap tersedia sebagai cadangan.
 
 ## ⚠️ Ketentuan
 

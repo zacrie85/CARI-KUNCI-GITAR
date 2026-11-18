@@ -20,9 +20,13 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
 - ILUSTRASI CHORD: diagram fretboard (senar kayu + titik jari merah)
   untuk chord-chord dalam lagu, muncul otomatis di tab Transposisi
   dan tab Deteksi — tinggal ikuti cara menekan senarnya.
-- YOUTUBE: mencari musik langsung di aplikasi (pencarian
-  terintegrasi), lalu URL-nya mengalir ke Unduhan Bawaan yt-dlp.
-  Tool eksternal seperti "Zac Downloader" tetap didukung (opsional).
+- BROWSER YOUTUBE TERSEMAT: jendela browser sungguhan (mesin
+  WebView2/Edge bawaan Windows) bisa dibuka dari dalam aplikasi —
+  jelajahi YouTube seperti biasa, dan begitu halaman video terbuka
+  URL-nya otomatis mengisi kolom Unduhan Bawaan.
+- PENCARIAN MUSIK: alternatif tanpa browser — ketik judul/artis,
+  klik hasil, URL mengalir ke Unduhan Bawaan yt-dlp.
+- Tool eksternal seperti "Zac Downloader" tetap didukung (opsional).
 - SIMPAN LAGU: menyimpan sheet chord ke database untuk dipakai
   lagi nanti, plus kamus jari chord dasar.
 
@@ -46,12 +50,25 @@ c. Hasilnya ada di folder dist\\ChordKu.exe.
 d. Catatan SmartScreen: saat pertama dibuka, pilih
    "More info" -> "Run anyway".
 
-4) TAB YOUTUBE: CARI MUSIK + UNDUH
+4) TAB YOUTUBE: BROWSER TERSEMAT + CARI MUSIK + UNDUH
 ------------------------------------------------
-- PENCARIAN TERINTEGRASI (ala Zac Downloader, tanpa buka aplikasi
-  lain): ketik judul lagu / nama artis di kotak "Cari musik di
-  YouTube" lalu klik "Cari". Daftar hasil muncul beserta channel
-  dan durasinya.
+- BROWSER TERSEMAT (Zac Downloader di dalam ChordKu):
+  1. Klik "Buka Browser YouTube" — jendela browser dengan mesin
+     WebView2 (Edge) terbuka, menampilkan YouTube sepenuhnya.
+  2. Jelajahi / login / cari lagu seperti di browser biasa.
+  3. Begitu halaman video (URL berisi watch?v= atau youtu.be)
+     terbuka, URL-nya LANGSUNG mengisi kolom "URL YouTube" di
+     bagian Unduhan Bawaan — otomatis, tanpa salin-tempel.
+  4. Klik "Download Audio (MP3)" seperti biasa.
+  5. Kotak centang "URL video otomatis masuk Unduhan Bawaan"
+     bisa dimatikan bila hanya ingin menonton.
+  Syarat: WebView2 Runtime (sudah ada di Windows 10/11 hasil
+  update normal). Jika tidak ada, gunakan tombol "Buka YouTube
+  di Browser Sistem" sebagai jalan keluar.
+- PENCARIAN TERINTEGRASI (tanpa membuka browser): ketik judul
+  lagu / nama artis di kotak "Cari musik di YouTube" lalu klik
+  "Cari". Klik-dua-kali hasil -> URL masuk Unduhan Bawaan.
+  Daftar hasil muncul beserta channel dan durasinya.
 - Kirim hasil ke unduhan bawaan:
   1. Klik-dua-kali salah satu hasil (atau pilih lalu klik
      "Pakai URL Ini -> Unduhan Bawaan") — URL langsung masuk ke

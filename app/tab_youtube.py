@@ -1,20 +1,55 @@
 # -*- coding: utf-8 -*-
-"""ChordKu - tab YouTube: cari musik (terintegrasi), unduh audio, tool opsional."""
+"""ChordKu - tab YouTube: browser tersemat, pencarian, unduh, tool opsional."""
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 from . import downloader as dl
+from . import yt_browser as ytb
 from .gui import PANEL, MUTED, run_bg
 
 
 def build(parent, ctx):
-    ttk.Label(parent, text='Cari musiknya langsung di sini, kirim URL ke '
-                           'Unduhan Bawaan, lalu unduh jadi MP3 — hanya '
-                           'untuk belajar musik (penggunaan pribadi).',
+    ttk.Label(parent, text='Jelajahi YouTube langsung dari aplikasi (browser '
+                           'tersemat), cari musik, atau tempel URL — unduh '
+                           'jadi MP3 hanya untuk belajar musik.',
               style='Muted.TLabel').pack(anchor='w', padx=12, pady=(10, 6))
 
-    # ------------------------------------------ pencarian terintegrasi
+    # url_var dibuat lebih awal agar bisa dipakai browser & pencarian
+    url_var = tk.StringVar(value=ctx.config.get('last_youtube_url', ''))
+
+    # ------------------------------------------ 1) browser tersemat
+    br = ttk.LabelFrame(parent, text='  Browser YouTube — Zac Downloader '
+                                     'tersemat (mesin WebView2/Edge)  ')
+    br.pack(fill='x', padx=12, pady=(0, 4))
+    br.columnconfigure(0, weight=1)
+
+    row_b = ttk.Frame(br)
+    row_b.grid(row=0, column=0, columnspan=2, sticky='ew', padx=8,
+               pady=(8, 4))
+    ttk.Button(row_b, text='Buka Browser YouTube', style='Accent.TButton',
+               command=lambda: _open_browser(ctx, auto_var, br_status,
+                                             url_var)).pack(side='left')
+    ttk.Button(row_b, text='Buka YouTube di Browser Sistem',
+               command=lambda: ytb.open_in_system_browser()).pack(
+        side='left', padx=6)
+    auto_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(row_b, text='URL video otomatis masuk Unduhan Bawaan',
+                    variable=auto_var).pack(side='left', padx=(12, 0))
+
+    ok, note = ytb.webview_available()
+    br_status = tk.StringVar(value=note)
+    ttk.Label(br, textvariable=br_status, style='PMuted.TLabel',
+              justify='left').grid(row=1, column=0, columnspan=2, sticky='w',
+                                   padx=8)
+    ttk.Label(br, text='Cara pakai: klik "Buka Browser YouTube", cari lagu '
+                       'yang diinginkan, dan begitu halaman video terbuka '
+                       'URL-nya otomatis terisi di kolom "URL YouTube" di '
+                       'bawah — tinggal klik "Download Audio (MP3)".',
+              style='PMuted.TLabel', justify='left').grid(
+        row=2, column=0, columnspan=2, sticky='w', padx=8, pady=(0, 8))
+
+    # ------------------------------------------ 2) pencarian terintegrasi
     search = ttk.LabelFrame(
         parent, text='  Cari musik di YouTube (pencarian terintegrasi)  ')
     search.pack(fill='both', expand=True, padx=12, pady=4)
@@ -35,7 +70,7 @@ def build(parent, ctx):
                                            btn_use, btn_dl))
 
     cols = ('judul', 'channel', 'durasi')
-    tree = ttk.Treeview(search, columns=cols, show='headings', height=6)
+    tree = ttk.Treeview(search, columns=cols, show='headings', height=5)
     tree.grid(row=1, column=0, sticky='nsew', padx=8)
     sb = ttk.Scrollbar(search, orient='vertical', command=tree.yview)
     sb.grid(row=1, column=1, sticky='ns', padx=(0, 8))
@@ -49,9 +84,10 @@ def build(parent, ctx):
     tree.tag_configure('odd', background=PANEL)
     tree.tag_configure('even', background='#22141C')
 
-    search_status = tk.StringVar(value='Ketik judul lagu / artis lalu klik '
-                                       '"Cari". Hasil klik-dua-kali = '
-                                       'langsung jadi URL unduhan.')
+    search_status = tk.StringVar(value='Alternatif tanpa browser: ketik '
+                                      'judul lagu / artis lalu klik "Cari". '
+                                      'Klik-dua-kali hasil = langsung jadi '
+                                      'URL unduhan.')
     ttk.Label(search, textvariable=search_status, style='PMuted.TLabel',
               justify='left').grid(row=2, column=0, sticky='w', padx=8,
                                    pady=(2, 0))
@@ -74,12 +110,11 @@ def build(parent, ctx):
                                                     search_status))
     ctx.refs['yt_search_tree'] = tree
 
-    # ------------------------------------------ unduhan bawaan
+    # ------------------------------------------ 3) unduhan bawaan
     top = ttk.LabelFrame(parent, text='  Unduhan bawaan (yt-dlp)  ')
     top.pack(fill='x', padx=12, pady=(8, 4))
     top.columnconfigure(1, weight=1)
 
-    url_var = tk.StringVar(value=ctx.config.get('last_youtube_url', ''))
     ttk.Label(top, text='URL YouTube:').grid(row=0, column=0, sticky='w',
                                              padx=8, pady=8)
     ttk.Entry(top, textvariable=url_var).grid(row=0, column=1, sticky='ew',
@@ -123,7 +158,7 @@ def build(parent, ctx):
               foreground='#FF6B81' if not mode else MUTED).grid(
         row=3, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
 
-    # ------------------------------------------ tool eksternal (opsional)
+    # ------------------------------------------ 4) tool eksternal
     ext = ttk.LabelFrame(parent,
                          text='  Tool eksternal (opsional, mis. Zac '
                               'Downloader)  ')
@@ -144,18 +179,55 @@ def build(parent, ctx):
                command=lambda: _open_tool(ctx, tool_var)).pack(side='left')
     ttk.Button(row2, text='Muat File Terakhir ke Deteksi',
                command=lambda: _load_last(ctx)).pack(side='left', padx=6)
-
-    hint = ('Karena pencarian YouTube kini terintegrasi di atas, tool '
-            'eksternal tidak lagi wajib.\nSlot ini tetap tersedia untuk Zac '
-            'Downloader atau tool lain: pilih file .exe-nya, unduh lewat '
-            'tool itu,\nlalu klik "Muat File Terakhir ke Deteksi".')
-    ttk.Label(ext, text=hint, style='PMuted.TLabel', justify='left').grid(
-        row=2, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
+    ttk.Label(ext, text='Kini browser + pencarian sudah ada di dalam '
+                        'aplikasi (di atas), jadi tool eksternal hanya '
+                        'cadangan.',
+              style='PMuted.TLabel').grid(row=2, column=0, columnspan=3,
+                                          sticky='w', padx=8, pady=(0, 8))
 
     if not mode:
         ent.configure(state='disabled')
         search_status.set('yt-dlp belum terpasang — pencarian nonaktif. '
                           'Jalankan setup.bat atau "pip install yt-dlp".')
+
+
+# --------------------------------------------------------------- browser
+def _apply_captured_url(ctx, url_var, status_var, auto_var, url):
+    """URL dari browser tersemat -> kolom Unduhan Bawaan (thread Tk)."""
+    url = (url or '').strip()
+    if not url:
+        return
+    if auto_var.get():
+        url_var.set(url)
+        status_var.set('URL video masuk Unduhan Bawaan: %s' % url)
+    else:
+        status_var.set('Video terbuka (auto-isi mati): %s' % url)
+
+
+def _open_browser(ctx, auto_var, status_var, url_var):
+    def on_url(url):
+        def apply():
+            _apply_captured_url(ctx, url_var, status_var, auto_var, url)
+        try:
+            ctx.root.after(0, apply)
+        except RuntimeError:
+            pass  # jendela aplikasi sudah ditutup
+
+    def on_status(text):
+        try:
+            ctx.root.after(0, lambda: status_var.set(text))
+        except RuntimeError:
+            pass
+
+    try:
+        ytb.open_browser(on_url=on_url, on_status=on_status)
+    except Exception as e:
+        status_var.set('Gagal membuka browser: %s' % e)
+        messagebox.showwarning(
+            'Browser YouTube',
+            str(e) + '\n\nAlternatif: klik "Buka YouTube di Browser '
+                     'Sistem", lalu salin-tempel URL-nya ke Unduhan '
+                     'Bawaan.')
 
 
 # ------------------------------------------------------------- pencarian
@@ -191,15 +263,6 @@ def _search(ctx, q_var, tree, status_var, btn_use, btn_dl):
     run_bg(ctx, work, on_done=on_done, on_error=on_err)
 
 
-def _selected_url(tree):
-    results = ctx_results(tree)
-    sel = tree.selection()
-    if not sel or not results:
-        return None
-    idx = int(sel[0])
-    return results[idx]['url'] if idx < len(results) else None
-
-
 def ctx_results(tree):
     # hasil pencarian disimpan di atribut widget agar aman dibawa bersama
     return getattr(tree, '_yt_results', [])
@@ -207,6 +270,15 @@ def ctx_results(tree):
 
 def _store_results(tree, results):
     tree._yt_results = results
+
+
+def _selected_url(tree):
+    results = ctx_results(tree)
+    sel = tree.selection()
+    if not sel or not results:
+        return None
+    idx = int(sel[0])
+    return results[idx]['url'] if idx < len(results) else None
 
 
 def _use_selected(ctx, tree, url_var, status_var):

@@ -42,6 +42,9 @@ jobs:
           } else {
             Write-Host 'PERINGATAN: ffmpeg.exe tidak tersedia, build TANPA bundling'
           }
+          # browser tersemat (pywebview/WebView2) + pythonnet ikut terkumpul
+          $pyi += @('--collect-all','webview','--collect-all','clr_loader',
+                    '--collect-all','pythonnet','--hidden-import','bottle')
           $pyi += 'chordku.py'
           pyinstaller @pyi
 
