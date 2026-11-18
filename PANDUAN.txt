@@ -14,9 +14,12 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
   bentuk chord kunci C.
 - DETEKSI CHORD: menebak chord dari file audio/MP3/MP4 hasil
   unduhan YouTube, lengkap dengan estimasi kunci lagu.
-- YOUTUBE: mengunduh audio dari tautan YouTube secara langsung
-  (bawaan yt-dlp), atau memakai tool eksternal seperti
-  "Zac Downloader" yang sudah terpasang di PC-mu.
+- ILUSTRASI CHORD: diagram fretboard (senar kayu + titik jari merah)
+  untuk chord-chord dalam lagu, muncul otomatis di tab Transposisi
+  dan tab Deteksi — tinggal ikuti cara menekan senarnya.
+- YOUTUBE: mencari musik langsung di aplikasi (pencarian
+  terintegrasi), lalu URL-nya mengalir ke Unduhan Bawaan yt-dlp.
+  Tool eksternal seperti "Zac Downloader" tetap didukung (opsional).
 - SIMPAN LAGU: menyimpan sheet chord ke database untuk dipakai
   lagi nanti, plus kamus jari chord dasar.
 
@@ -40,18 +43,27 @@ c. Hasilnya ada di folder dist\ChordKu.exe.
 d. Catatan SmartScreen: saat pertama dibuka, pilih
    "More info" -> "Run anyway".
 
-4) MENGUNDUH DARI YOUTUBE (tab YouTube)
+4) TAB YOUTUBE: CARI MUSIK + UNDUH
 ------------------------------------------------
-- Tempel URL/tautan YouTube lalu klik "Download Audio (MP3)".
-  File tersimpan di folder downloads\.
+- PENCARIAN TERINTEGRASI (ala Zac Downloader, tanpa buka aplikasi
+  lain): ketik judul lagu / nama artis di kotak "Cari musik di
+  YouTube" lalu klik "Cari". Daftar hasil muncul beserta channel
+  dan durasinya.
+- Kirim hasil ke unduhan bawaan:
+  1. Klik-dua-kali salah satu hasil (atau pilih lalu klik
+     "Pakai URL Ini -> Unduhan Bawaan") — URL langsung masuk ke
+     kolom "URL YouTube" di bagian Unduhan Bawaan (yt-dlp).
+  2. Klik "Download Audio (MP3)" — file MP3 tersimpan di folder
+     downloads\.
+  3. Mau lebih cepat? Klik "Download Langsung (MP3)" untuk
+     mengunduh hasil terpilih tanpa langkah perantara.
 - Butuh koneksi internet. Jika gagal karena pembatasan YouTube,
   coba perbarui yt-dlp:  pip install -U yt-dlp
-- MEMAKAI ZAC DOWNLOADER (tool eksternal):
-  1. Pasang Zac Downloader di PC-mu (jika sudah punya, lewati).
-  2. Di tab YouTube bagian "Tool Eksternal", klik "Pilih...",
-     arahkan ke Zac Downloader.exe (atau shortcut-nya).
-  3. Klik "Buka Tool Eksternal" -> unduh video musik lewat tool itu.
-  4. Klik "Muat File Terakhir ke Deteksi" untuk mengambil file
+- TOOL EKSTERNAL (sekarang OPSIONAL — pencarian sudah ada di atas):
+  1. Klik "Pilih...", arahkan ke Zac Downloader.exe (atau
+     shortcut-nya).
+  2. Klik "Buka Tool Eksternal" -> unduh video musik lewat tool itu.
+  3. Klik "Muat File Terakhir ke Deteksi" untuk mengambil file
      hasil unduhan ke tab Deteksi Chord.
 
 5) DETEKSI CHORD (tab Deteksi)
@@ -59,7 +71,10 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
 - Pilih file audio (.wav, .mp3, .m4a, .flac, dll) atau hasil
   unduhan YouTube.
 - Klik "Deteksi Chord" dan tunggu beberapa saat.
-- Hasil: urutan chord berwaktu + estimasi kunci lagu.
+- Hasil: urutan chord berwaktu + estimasi kunci lagu, dan panel
+  "Ilustrasi chord yang terdeteksi" di bawahnya menampilkan cara
+  menekan tiap chord (senar vertikal, titik merah = posisi jari,
+  O = senar dibuka, X = tidak dipetik).
 - Klik "Kirim ke Transposisi" untuk menggeser hasil deteksi ke
   kunci lain.
 - KONVERSI AUDIO: sejak v1.0.1, ChordKu.exe sudah MEMBAWA ffmpeg
@@ -84,6 +99,11 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
 - Transposisi juga bekerja untuk sheet dari situs chord: salin
   teksnya (termasuk lirik) lalu tempel di tab Transposisi. Kata
   lirik tidak akan ikut tergeser, hanya chord-nya.
+- Setelah transpose, lihat panel "Ilustrasi chord lagu ini" di
+  bawah hasil: diagram fretboard untuk chord-chord unik dalam
+  lagu (termasuk bentuk barre otomatis untuk chord seperti
+  F#m, C#m, Bb — ditandai label "2fr", "4fr", dst).
+- Tampilan v1.0.2 memakai tema futuristik merah-putih-emas.
 
 7) STRUKTUR FOLDER
 ------------------------------------------------

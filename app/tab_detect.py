@@ -5,7 +5,9 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 
 from . import detector as det
-from .gui import PANEL, TEXT, MUTED, MONO, run_bg, load_into_transposer
+from .chord_canvas import ChordGrid
+from .gui import PANEL, TEXT, MUTED, MONO, run_bg, diagram_colors, \
+    load_into_transposer
 
 FILETYPES = [('Audio', '*.mp3 *.m4a *.wav *.flac *.ogg *.opus *.aac '
                         '*.mp4 *.webm'),
@@ -53,7 +55,7 @@ def build(parent, ctx):
             else 'ffmpeg TIDAK ditemukan — hanya file .wav yang bisa '
                  'diproses. Pasang ffmpeg (lihat tab Panduan).')
     ttk.Label(top, text=note, style='PMuted.TLabel',
-              foreground='#B91C1C' if not ffmpeg else MUTED).grid(
+              foreground='#FF6B81' if not ffmpeg else MUTED).grid(
         row=3, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
 
     # hasil
@@ -69,6 +71,15 @@ def build(parent, ctx):
     sb.grid(row=0, column=1, sticky='ns')
     out.configure(yscrollcommand=sb.set)
     ctx.refs['detect_result_text'] = out
+
+    # ilustrasi chord hasil deteksi (diagram fretboard)
+    ilus = ttk.LabelFrame(parent, text='  Ilustrasi chord yang terdeteksi '
+                                       '(senar vertikal, jari di dalam '
+                                       'titik)  ')
+    ilus.pack(fill='x', padx=12, pady=(2, 2))
+    grid = ChordGrid(ilus, colors=diagram_colors())
+    grid.pack(fill='x', padx=6, pady=(0, 6))
+    ctx.refs['detect_chords'] = grid
 
     btn_row = ttk.Frame(parent)
     btn_row.pack(fill='x', padx=12, pady=(2, 12))
@@ -122,6 +133,17 @@ def _detect(ctx, path_var, bar, status_var, button):
             out.delete('1.0', 'end')
             out.insert('1.0', text)
             out.configure(state='disabled')
+        grid = ctx.refs.get('detect_chords')
+        if grid is not None:
+            seen, seq = set(), []
+            for seg in result.get('segments') or []:
+                ch = seg[2] if len(seg) > 2 else str(seg)
+                if ch not in seen:
+                    seen.add(ch)
+                    seq.append(ch)
+                    if len(seq) >= 14:
+                        break
+            grid.set_chords(seq, limit=14)
 
     def on_err(msg):
         bar['value'] = 0.0

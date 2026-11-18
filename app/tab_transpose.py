@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""ChordKu - tab Transposisi: geser kunci lagu (mis. C -> D)."""
+"""ChordKu - tab Transposisi: geser kunci lagu + ilustrasi bentuk chord."""
 import os
 import re
 import tkinter as tk
@@ -7,7 +7,8 @@ from tkinter import ttk, filedialog, messagebox, simpledialog
 
 from . import transposer as tr
 from . import chords_data as cd
-from .gui import PANEL, TEXT, MUTED, MONO
+from .chord_canvas import ChordGrid
+from .gui import PANEL, TEXT, MUTED, MONO, diagram_colors
 
 
 def _parse_key(var_value):
@@ -72,6 +73,15 @@ def build(parent, ctx):
     ttk.Label(right, textvariable=capo_var, style='PMuted.TLabel',
               wraplength=420, justify='left').grid(
         row=1, column=0, sticky='ew', padx=10, pady=(0, 8))
+
+    # --------------------------------- ilustrasi chord (diagram fretboard)
+    ilus = ttk.LabelFrame(parent, text='  Ilustrasi chord lagu ini (senar '
+                                       'vertikal, jari di dalam titik; O = '
+                                       'dibuka, X = tidak dipetik)  ')
+    ilus.pack(fill='x', padx=12, pady=(4, 2))
+    grid = ChordGrid(ilus, colors=diagram_colors())
+    grid.pack(fill='x', padx=6, pady=(0, 6))
+    ctx.refs['transpose_chords'] = grid
 
     # ------------------------------------------------ bawah: kontrol
     ctrl = ttk.Frame(parent)
@@ -192,6 +202,11 @@ def _do_transpose(ctx, input_txt, output_txt, from_var, to_var, shift_var,
     ctx.refs['last_transposed'] = new_text
     ctx.refs['last_keys'] = (from_key, to_key)
 
+    # ilustrasi chord sesuai lagu yang ditransposisi
+    grid = ctx.refs.get('transpose_chords')
+    if grid is not None:
+        grid.set_chords(chords, limit=12)
+
 
 def _show_all_keys(ctx, input_txt, from_var):
     text = input_txt.get('1.0', 'end').strip()
@@ -213,7 +228,9 @@ def _show_all_keys(ctx, input_txt, from_var):
     win = tk.Toplevel(ctx.root)
     win.title('12 Kunci Alternatif')
     win.geometry('760x560')
-    txt = tk.Text(win, font=MONO, wrap='word', bg=PANEL, padx=10, pady=10)
+    win.configure(bg=PANEL)
+    txt = tk.Text(win, font=MONO, wrap='word', bg=PANEL, fg=TEXT,
+                  padx=10, pady=10)
     txt.pack(fill='both', expand=True, side='left')
     sb = ttk.Scrollbar(win, orient='vertical', command=txt.yview)
     sb.pack(fill='y', side='right')

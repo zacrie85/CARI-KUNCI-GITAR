@@ -11,6 +11,7 @@ Dua jalur:
 Catatan: hak cipta musik di YouTube tetap milik pemiliknya. Gunakan
 pengunduhan ini hanya untuk penggunaan pribadi (belajar chord).
 """
+import json
 import os
 import shutil
 import subprocess
@@ -50,6 +51,77 @@ def get_title(url):
         except Exception:
             return None
     return None
+
+
+def _fmt_duration(sec):
+    """Detik -> '3:45' (atau '1:02:03'); kosong bila durasi tak diketahui."""
+    if sec in (None, ''):
+        return ''
+    try:
+        sec = int(sec)
+    except (TypeError, ValueError):
+        return ''
+    if sec <= 0:
+        return ''
+    h, rem = divmod(sec, 3600)
+    m, s = divmod(rem, 60)
+    return '%d:%02d:%02d' % (h, m, s) if h else '%d:%02d' % (m, s)
+
+
+def search_youtube(query, limit=8):
+    """
+    Cari video di YouTube (seperti fitur pencarian Zac Downloader).
+    Return list dict: {title, url, uploader, duration}.
+    Melempar RuntimeError dengan pesan Indonesia bila gagal.
+    """
+    mode, ydl = find_ytdlp()
+    if mode is None:
+        raise RuntimeError(ydl)
+    if not (query or '').strip():
+        raise RuntimeError('Kata kunci pencarian masih kosong.')
+    q = 'ytsearch%d:%s' % (limit, query.strip())
+    entries = []
+    if mode == 'lib':
+        opts = {'quiet': True, 'no_warnings': True, 'extract_flat': True}
+        try:
+            with ydl.YoutubeDL(opts) as y:
+                info = y.extract_info(q, download=False)
+                entries = (info or {}).get('entries') or []
+        except Exception as e:
+            raise RuntimeError('Pencarian gagal: %s' % str(e)[:300])
+    else:
+        res = subprocess.run([ydl, '-J', '--flat-playlist', q],
+                             capture_output=True, timeout=120)
+        if res.returncode != 0:
+            raise RuntimeError('Pencarian gagal: %s' %
+                               res.stderr.decode(errors='ignore')[:300])
+        try:
+            data = json.loads(res.stdout.decode(errors='ignore') or '{}')
+        except ValueError:
+            raise RuntimeError('Pencarian gagal: hasil tidak bisa dibaca.')
+        entries = data.get('entries') or []
+
+    out = []
+    for e in entries:
+        if not e:
+            continue
+        url = e.get('url') or e.get('webpage_url') or ''
+        if url and not str(url).startswith('http'):
+            url = 'https://www.youtube.com/watch?v=%s' % (e.get('id') or url)
+        elif not url and e.get('id'):
+            url = 'https://www.youtube.com/watch?v=%s' % e['id']
+        if not url or not url.startswith('http'):
+            continue
+        out.append({
+            'title': (e.get('title') or '(tanpa judul)')[:110],
+            'url': url,
+            'uploader': e.get('uploader') or e.get('channel') or '',
+            'duration': _fmt_duration(e.get('duration')),
+        })
+    if not out:
+        raise RuntimeError('Tidak ada hasil untuk "%s". Coba kata kunci '
+                           'lain, mis. judul lagu + nama artis.' % query)
+    return out
 
 
 def _progress_hook(cb):

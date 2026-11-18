@@ -1,22 +1,82 @@
 # -*- coding: utf-8 -*-
-"""ChordKu - tab YouTube: unduh audio (yt-dlp) + slot tool eksternal."""
+"""ChordKu - tab YouTube: cari musik (terintegrasi), unduh audio, tool opsional."""
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 from . import downloader as dl
-from .gui import PANEL, TEXT, MUTED, MONO, run_bg
+from .gui import PANEL, MUTED, run_bg
 
 
 def build(parent, ctx):
-    ttk.Label(parent, text='Ambil audio lagu dari YouTube untuk dideteksi '
-                           'chord-nya. Unduhan hanya untuk belajar musik '
-                           '(penggunaan pribadi).',
+    ttk.Label(parent, text='Cari musiknya langsung di sini, kirim URL ke '
+                           'Unduhan Bawaan, lalu unduh jadi MP3 — hanya '
+                           'untuk belajar musik (penggunaan pribadi).',
               style='Muted.TLabel').pack(anchor='w', padx=12, pady=(10, 6))
 
-    # ---------------------------------------------- unduhan bawaan
+    # ------------------------------------------ pencarian terintegrasi
+    search = ttk.LabelFrame(
+        parent, text='  Cari musik di YouTube (pencarian terintegrasi)  ')
+    search.pack(fill='both', expand=True, padx=12, pady=4)
+    search.columnconfigure(0, weight=1)
+    search.rowconfigure(1, weight=1)
+
+    qrow = ttk.Frame(search)
+    qrow.grid(row=0, column=0, sticky='ew', padx=8, pady=(8, 4))
+    qrow.columnconfigure(0, weight=1)
+    q_var = tk.StringVar()
+    ent = ttk.Entry(qrow, textvariable=q_var)
+    ent.grid(row=0, column=0, sticky='ew')
+    ttk.Button(qrow, text='Cari', style='Accent.TButton',
+               command=lambda: _search(ctx, q_var, tree, search_status,
+                                       btn_use, btn_dl)).grid(
+        row=0, column=1, padx=(6, 0))
+    ent.bind('<Return>', lambda e: _search(ctx, q_var, tree, search_status,
+                                           btn_use, btn_dl))
+
+    cols = ('judul', 'channel', 'durasi')
+    tree = ttk.Treeview(search, columns=cols, show='headings', height=6)
+    tree.grid(row=1, column=0, sticky='nsew', padx=8)
+    sb = ttk.Scrollbar(search, orient='vertical', command=tree.yview)
+    sb.grid(row=1, column=1, sticky='ns', padx=(0, 8))
+    tree.configure(yscrollcommand=sb.set)
+    tree.heading('judul', text='Judul')
+    tree.heading('channel', text='Channel')
+    tree.heading('durasi', text='Durasi')
+    tree.column('judul', width=330, anchor='w')
+    tree.column('channel', width=150, anchor='w')
+    tree.column('durasi', width=64, anchor='center')
+    tree.tag_configure('odd', background=PANEL)
+    tree.tag_configure('even', background='#22141C')
+
+    search_status = tk.StringVar(value='Ketik judul lagu / artis lalu klik '
+                                       '"Cari". Hasil klik-dua-kali = '
+                                       'langsung jadi URL unduhan.')
+    ttk.Label(search, textvariable=search_status, style='PMuted.TLabel',
+              justify='left').grid(row=2, column=0, sticky='w', padx=8,
+                                   pady=(2, 0))
+
+    brow = ttk.Frame(search)
+    brow.grid(row=3, column=0, columnspan=2, sticky='ew', padx=8,
+              pady=(4, 8))
+    btn_use = ttk.Button(brow, text='Pakai URL Ini -> Unduhan Bawaan',
+                         style='Red.TButton', state='disabled',
+                         command=lambda: _use_selected(ctx, tree, url_var,
+                                                       search_status))
+    btn_use.pack(side='left')
+    btn_dl = ttk.Button(brow, text='Download Langsung (MP3)',
+                        style='Accent.TButton', state='disabled',
+                        command=lambda: _dl_selected(ctx, tree, url_var,
+                                                     search_status, bar,
+                                                     status_var, dl_btn))
+    btn_dl.pack(side='left', padx=6)
+    tree.bind('<Double-1>', lambda e: _use_selected(ctx, tree, url_var,
+                                                    search_status))
+    ctx.refs['yt_search_tree'] = tree
+
+    # ------------------------------------------ unduhan bawaan
     top = ttk.LabelFrame(parent, text='  Unduhan bawaan (yt-dlp)  ')
-    top.pack(fill='x', padx=12, pady=4)
+    top.pack(fill='x', padx=12, pady=(8, 4))
     top.columnconfigure(1, weight=1)
 
     url_var = tk.StringVar(value=ctx.config.get('last_youtube_url', ''))
@@ -54,17 +114,20 @@ def build(parent, ctx):
     ydl_txt = ('yt-dlp: OK (siap dipakai)' if mode
                else 'yt-dlp BELUM TERPASANG — jalankan setup.bat atau '
                     '"pip install yt-dlp"')
-    ff_txt = ('ffmpeg: OK (hasil otomatis MP3)' if ffmpeg
-              else 'ffmpeg tidak ada — file tersimpan dalam format asli '
-                   '(m4a/webm); deteksi memerlukan ffmpeg')
+    ff_txt = ('ffmpeg: OK (bundel di dalam aplikasi, hasil otomatis MP3)'
+              if ffmpeg
+              else 'ffmpeg tidak ada — file tersimpan dalam format asli; '
+                   'deteksi memerlukan ffmpeg')
     ttk.Label(top, text=ydl_txt + '    |    ' + ff_txt,
               style='PMuted.TLabel',
-              foreground='#B91C1C' if not mode else MUTED).grid(
+              foreground='#FF6B81' if not mode else MUTED).grid(
         row=3, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
 
-    # ---------------------------------------------- tool eksternal
-    ext = ttk.LabelFrame(parent, text='  Tool eksternal (mis. Zac Downloader)  ')
-    ext.pack(fill='x', padx=12, pady=8)
+    # ------------------------------------------ tool eksternal (opsional)
+    ext = ttk.LabelFrame(parent,
+                         text='  Tool eksternal (opsional, mis. Zac '
+                              'Downloader)  ')
+    ext.pack(fill='x', padx=12, pady=(4, 10))
     ext.columnconfigure(1, weight=1)
 
     tool_var = tk.StringVar(value=ctx.config.get('external_tool_path', ''))
@@ -82,17 +145,93 @@ def build(parent, ctx):
     ttk.Button(row2, text='Muat File Terakhir ke Deteksi',
                command=lambda: _load_last(ctx)).pack(side='left', padx=6)
 
-    hint = ('Zac Downloader adalah aplikasi tampilan terpisah, jadi alurnya '
-            'begini:\n'
-            '1. Klik "Pilih..." lalu arahkan ke Zac Downloader.exe di PC-mu.\n'
-            '2. Klik "Buka Tool Eksternal" dan unduh video musik lewat tool '
-            'itu.\n'
-            '3. Kembali ke sini, klik "Muat File Terakhir ke Deteksi" — file '
-            'hasil unduhan langsung masuk ke tab Deteksi Chord.')
+    hint = ('Karena pencarian YouTube kini terintegrasi di atas, tool '
+            'eksternal tidak lagi wajib.\nSlot ini tetap tersedia untuk Zac '
+            'Downloader atau tool lain: pilih file .exe-nya, unduh lewat '
+            'tool itu,\nlalu klik "Muat File Terakhir ke Deteksi".')
     ttk.Label(ext, text=hint, style='PMuted.TLabel', justify='left').grid(
         row=2, column=0, columnspan=3, sticky='w', padx=8, pady=(0, 8))
 
+    if not mode:
+        ent.configure(state='disabled')
+        search_status.set('yt-dlp belum terpasang — pencarian nonaktif. '
+                          'Jalankan setup.bat atau "pip install yt-dlp".')
 
+
+# ------------------------------------------------------------- pencarian
+def _search(ctx, q_var, tree, status_var, btn_use, btn_dl):
+    query = q_var.get().strip()
+    if not query:
+        messagebox.showwarning('Kata kunci kosong',
+                               'Ketik dulu judul lagu atau nama artisnya.')
+        return
+
+    def work(prog):
+        prog(0.4, 'Mencari di YouTube...')
+        return dl.search_youtube(query, limit=10)
+
+    def on_done(results):
+        for iid in tree.get_children():
+            tree.delete(iid)
+        for i, r in enumerate(results):
+            tree.insert('', 'end', iid=str(i), values=(
+                r['title'], r['uploader'], r['duration']),
+                tags=('odd', 'even')[i % 2])
+        _store_results(tree, results)
+        status_var.set('%d hasil untuk "%s" — klik-dua-kali hasil untuk '
+                       'mengisi URL Unduhan Bawaan.' % (len(results), query))
+        btn_use['state'] = 'normal'
+        btn_dl['state'] = 'normal'
+
+    def on_err(msg):
+        status_var.set('Pencarian gagal.')
+        messagebox.showerror('Pencarian gagal', msg)
+
+    status_var.set('Mencari "%s"...' % query)
+    run_bg(ctx, work, on_done=on_done, on_error=on_err)
+
+
+def _selected_url(tree):
+    results = ctx_results(tree)
+    sel = tree.selection()
+    if not sel or not results:
+        return None
+    idx = int(sel[0])
+    return results[idx]['url'] if idx < len(results) else None
+
+
+def ctx_results(tree):
+    # hasil pencarian disimpan di atribut widget agar aman dibawa bersama
+    return getattr(tree, '_yt_results', [])
+
+
+def _store_results(tree, results):
+    tree._yt_results = results
+
+
+def _use_selected(ctx, tree, url_var, status_var):
+    url = _selected_url(tree)
+    if not url:
+        messagebox.showinfo('Pilih hasil', 'Pilih dulu salah satu hasil '
+                            'pencarian di daftar.')
+        return
+    url_var.set(url)
+    status_var.set('URL dimuat ke kolom "URL YouTube" di bagian Unduhan '
+                   'Bawaan — klik "Download Audio (MP3)" bila ingin langsung '
+                   'mengunduh.')
+
+
+def _dl_selected(ctx, tree, url_var, status_var, bar, dl_status, dl_btn):
+    url = _selected_url(tree)
+    if not url:
+        messagebox.showinfo('Pilih hasil', 'Pilih dulu salah satu hasil '
+                            'pencarian di daftar.')
+        return
+    url_var.set(url)
+    _download(ctx, url_var, bar, dl_status, dl_btn)
+
+
+# --------------------------------------------------------------- unduhan
 def _check_title(ctx, url_var):
     url = url_var.get().strip()
     if not url:
@@ -155,6 +294,7 @@ def _download(ctx, url_var, bar, status_var, button):
     run_bg(ctx, work, on_done=on_done, on_progress=on_prog, on_error=on_err)
 
 
+# ------------------------------------------------------------- eksternal
 def _choose_tool(ctx, tool_var):
     p = filedialog.askopenfilename(
         title='Pilih tool eksternal (mis. Zac Downloader.exe)',

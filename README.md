@@ -6,8 +6,8 @@ aslinya kunci **C** bisa langsung digeser menjadi kunci **D**, lengkap dengan
 semua chord alternatifnya dan saran posisi capo.
 
 > Inspirasi: aplikasi "Chord AI". Dibangun dengan **Python + Tkinter**,
-> database **SQLite**, tampilan **terang & minimalis** — tanpa server,
-> semuanya berjalan lokal di PC-mu.
+> database **SQLite**, tampilan **futuristik merah-putih-emas** (v1.0.2) —
+> tanpa server, semuanya berjalan lokal di PC-mu.
 
 ## ✨ Fitur
 
@@ -17,7 +17,8 @@ semua chord alternatifnya dan saran posisi capo.
 | **12 kunci alternatif** | Satu klik menampilkan lagu yang sama di semua kunci (C sampai B). |
 | **Saran capo** | Misal kunci D cukup capo fret 2 lalu pakai bentuk kunci C. |
 | **Deteksi chord** | Chroma + template matching + Viterbi (metode buku teks MIR) menebak urutan chord berwaktu dari file audio, plus estimasi kunci lagu (Krumhansl-Schmuckler). |
-| **YouTube** | Unduh audio langsung via `yt-dlp`, atau pakai tool eksternal seperti **Zac Downloader** lalu muat file hasilnya ke tab Deteksi. |
+| **Ilustrasi chord (v1.0.2)** | Diagram fretboard (papan kayu, titik jari merah bernomor, penanda O/X, bentuk barre otomatis dengan label `2fr`/`4fr`) untuk semua chord unik dalam lagu — muncul di tab Transposisi & Deteksi. |
+| **YouTube** | **Pencarian musik terintegrasi (v1.0.2)**: ketik judul/artis → daftar hasil → URL langsung masuk ke Unduhan Bawaan `yt-dlp` → unduh MP3 (ffmpeg ter-bundle). Tool eksternal seperti **Zac Downloader** tetap didukung (opsional). |
 | **Kamus jari** | Pola jari chord yang dipakai ditampilkan otomatis (format `x32010`). |
 | **Simpan lagu** | Sheet tersimpan di `chordku.db` (SQLite) — muat ulang, ekspor `.txt`, hapus. |
 
@@ -49,13 +50,21 @@ Kunci D : Intro : D  A  Bm  F#m G  D  Em  A
 ## 🎵 Alur YouTube
 
 ```
-URL YouTube ──► yt-dlp (bawaan) ──► MP3 ──► tab Deteksi ──► tab Transposisi
-     └──► atau Zac Downloader (tool eksternal) ──► "Muat File Terakhir"
+Cari musik (terintegrasi) ──► klik-dua-kali hasil ──► URL masuk Unduhan Bawaan
+                                                              │
+URL tempel manual ────────────────────────────────────────────┤
+                                                              ▼
+                        yt-dlp + ffmpeg ter-bundle ──► MP3 ──► tab Deteksi
+                                                              ▼
+                                                      tab Transposisi
+                                                      (+ ilustrasi chord)
+
+Alternatif: Zac Downloader (tool eksternal) ──► "Muat File Terakhir"
 ```
 
-Catatan: `zac-downloader` (github.com/zacrie85/zac-downloader) adalah aplikasi
-GUI terpisah, jadi integrasinya berupa slot *tool eksternal*: aplikasi
-membukanya untukmu, lalu file hasil unduhannya dimuat kembali ke tab Deteksi.
+Catatan: `zac-downloader` (github.com/zacrie85/zac-downloader) tetap didukung
+sebagai slot *tool eksternal*, tetapi sejak v1.0.2 pencarian & unduh musik
+bisa dilakukan sepenuhnya di dalam ChordKu tanpa aplikasi lain.
 
 ## ⚠️ Ketentuan
 
