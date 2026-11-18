@@ -158,9 +158,13 @@ def chromagram(y, sr=SR, progress_cb=None):
         if len(seg) < FRAME_SIZE:
             seg = np.pad(seg, (0, FRAME_SIZE - len(seg)))
         mag = np.abs(np.fft.rfft(seg * win))[band]
-        # buang bin sangat lemah (bocoran sidelobe) lalu kompresi log ringan
+        # buang bin sangat lemah (bocoran sidelobe) lalu kompresi sqrt
+        # v1.0.8: dulu log1p(100x) — terlalu menggembungkan harmonik
+        # lemah (harmonik 30x lebih pelan jadi hanya ~3x lebih pelan),
+        # sehingga nada ke-7 harmonik ikut kuat dan triad sering salah
+        # jadi chord 7. sqrt menjaga dinamika tanpa over-inflasi.
         mag = np.where(mag >= 0.01 * mag.max(), mag, 0.0)
-        spec = np.log1p(100.0 * mag)
+        spec = np.sqrt(mag)
         chroma[t] = np.bincount(pcs, weights=spec, minlength=12)
         if progress_cb and t % 200 == 0:
             progress_cb(0.25 + 0.45 * t / max(1, n_frames),
@@ -170,14 +174,23 @@ def chromagram(y, sr=SR, progress_cb=None):
     return chroma / norm
 
 # ---------------------------------------------------------------- template
+# v1.0.8: PERBAIKAN BUG — template '7' dan 'm7' dulu menaruh nada ke-7 di
+# indeks semitone 9 (mayor 6!) alih-alih 10 (minor 7). Akibatnya chord 6
+# palsu menang: triad biasa sering terbaca "C7", Am7 malah terbaca "C7",
+# dan hampir semua chord keluar bersuffix 7 (Amaj7, Dmaj7, ...).
 BASE_TEMPLATES = {
     '': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],       # mayor: 1 3 5
     'm': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],      # minor: 1 b3 5
-    '7': [1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],      # dom7: 1 3 5 b7
+    '7': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],      # dom7: 1 3 5 b7
     'maj7': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],   # maj7: 1 3 5 7
-    'm7': [1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0],     # m7: 1 b3 5 b7
+    'm7': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0],     # m7: 1 b3 5 b7
 }
 QUALITY_ORDER = ['', 'm', '7', 'maj7', 'm7']
+
+# v1.0.8: penalti kualitas extended — nada ke-7 mudah "bocor" dari
+# harmonik instrumen atau melodi, jadi chord 7 sejati harus menang
+# lebih jelas daripada triad (gap cos chord 7 sejati ~0.13).
+EXT_PENALTY = 0.08
 
 
 def build_templates():
@@ -304,6 +317,9 @@ def detect_file(path, progress_cb=None, sensitivity=DEFAULT_SENS):
 
     names, templates = build_templates()
     scores = _cosine(chroma, templates)
+    # v1.0.8: penalti chord extended (7/maj7/m7) — lihat EXT_PENALTY
+    scores[:, [i for i, nm in enumerate(names) if nm.endswith('7')]] \
+        -= EXT_PENALTY
     # bobot energi: frame sunyi diabaikan (skor diturunkan)
     energy = chroma.max(axis=1)
     silent = ~(energy > 0.05)

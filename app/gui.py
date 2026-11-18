@@ -8,7 +8,7 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_VERSION = '1.0.7'
+APP_VERSION = '1.0.8'
 APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v' + APP_VERSION
 
 # ------------------------------------------------------------ palet tema

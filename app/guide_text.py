@@ -200,6 +200,12 @@ config.json        : pengaturan (dibuat otomatis)
   dari kode sumber? Pasang ffmpeg (lihat bagian 5).
 - Jendela tidak terbuka     -> jalankan dari CMD: python chordku.py
   agar pesan galat terlihat; kirim pesan galat itu saat melapor.
+- SEMUA CHORD BERSUFFIX 7 (Amaj7, Dmaj7, C7...) -> sudah DIPERBAIKI
+  di v1.0.8: (a) bug template chord 7 (nada ke-7 tertukar mayor-6),
+  (b) kompresi chroma yang terlalu menggembungkan harmonik lemah,
+  (c) penalti kecil utk kualitas extended. Kini chord 7 SEJATI
+  (C7, Dmaj7, Am7) tetap terdeteksi benar, sedangkan triad biasa
+  (C, G, Am, F) tidak lagi salah jadi 7.
 - HASIL DETEKSI TERDENGAR SALAH -> wajar (perkiraan). Ubah manual
   atau transpose dari kunci yang kamu yakini benar.
 
