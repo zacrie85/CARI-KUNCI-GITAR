@@ -13,7 +13,7 @@ semua chord alternatifnya dan saran posisi capo.
 
 | Fitur | Penjelasan |
 |---|---|
-| **Transposisi chord** | Tempel sheet chord (boleh pakai lirik), pilih kunci asal & tujuan → semua chord bergeser otomatis. Kata lirik tidak ikut tergeser. |
+| **Transposisi chord (v1.0.4)** | Tempel sheet chord (boleh pakai lirik; chord besar/kecil, kurung `[Am]`, sejajar lirik, atau di atas lirik), pilih kunci asal & tujuan → semua chord bergeser otomatis. Pustaka **7 contoh lagu** bawaan (Pujaan Hati + tradisional + template) dengan kunci asal terisi otomatis. Kata lirik tidak ikut tergeser. |
 | **12 kunci alternatif** | Satu klik menampilkan lagu yang sama di semua kunci (C sampai B). |
 | **Saran capo** | Misal kunci D cukup capo fret 2 lalu pakai bentuk kunci C. |
 | **Deteksi chord** | Chroma + template matching + Viterbi (metode buku teks MIR) menebak urutan chord berwaktu dari file audio, plus estimasi kunci lagu (Krumhansl-Schmuckler). |

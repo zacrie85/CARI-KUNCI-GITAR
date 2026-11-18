@@ -20,8 +20,9 @@ def _parse_key(var_value):
 
 
 def build(parent, ctx):
-    ttk.Label(parent, text='Geser seluruh chord lagu ke kunci lain — '
-                           'contoh: Pujaan Hati dari kunci C ke kunci D',
+    ttk.Label(parent, text='Geser seluruh chord lagu ke kunci lain — pilih '
+                           'contoh lagu, tempel sheet-mu sendiri, atau buka '
+                           'file .txt (format chord bebas)',
               style='Muted.TLabel').pack(anchor='w', padx=12, pady=(10, 6))
 
     main = ttk.Frame(parent)
@@ -47,12 +48,21 @@ def build(parent, ctx):
 
     btns = ttk.Frame(left)
     btns.grid(row=1, column=0, columnspan=2, sticky='ew', padx=10, pady=8)
-    ttk.Button(btns, text='Muat Contoh: Pujaan Hati (C)',
-               command=lambda: _load_sample(ctx, input_txt)).pack(side='left')
+    ttk.Label(btns, text='Contoh lagu:').pack(side='left')
+    sample_var = tk.StringVar(value=list(cd.SAMPLE_SONGS)[0])
+    cb_sample = ttk.Combobox(btns, textvariable=sample_var,
+                             values=list(cd.SAMPLE_SONGS), width=34,
+                             state='readonly')
+    cb_sample.pack(side='left', padx=(4, 4))
+    ttk.Button(btns, text='Muat Contoh', style='Accent.TButton',
+               command=lambda: _load_sample(ctx, input_txt, sample_var)
+               ).pack(side='left')
     ttk.Button(btns, text='Buka File .txt',
-               command=lambda: _open_file(input_txt)).pack(side='left', padx=6)
+               command=lambda: _open_file(input_txt)).pack(side='left',
+                                                           padx=(6, 0))
     ttk.Button(btns, text='Bersihkan',
-               command=lambda: input_txt.delete('1.0', 'end')).pack(side='left')
+               command=lambda: input_txt.delete('1.0', 'end')).pack(
+        side='left', padx=6)
 
     # ------------------------------------------------ kanan: hasil
     right = ttk.LabelFrame(main, text='  Hasil transposisi (+ kamus jari)  ')
@@ -120,10 +130,27 @@ def build(parent, ctx):
                ).pack(side='left', padx=6)
 
 
-def _load_sample(ctx, input_txt):
+def _load_sample(ctx, input_txt, sample_var):
+    """Muat lagu contoh terpilih + set 'Kunci asal' dari header sheet."""
+    name = sample_var.get()
+    sheet = cd.SAMPLE_SONGS.get(name)
+    if not sheet:
+        return
     input_txt.delete('1.0', 'end')
-    input_txt.insert('1.0', cd.SAMPLE_PUJAAN_HATI)
-    ctx.refs['transpose_from'].set('C')
+    input_txt.insert('1.0', sheet)
+    m = re.search(r'Kunci Asli\s*:\s*([A-G][#b]?(?:m|min|maj)?\d*)',
+                  sheet, re.IGNORECASE)
+    if m:
+        ctx.refs['transpose_from'].set(_combo_key(m.group(1)))
+    ctx.refs['transpose_sample_loaded'] = name
+
+
+def _combo_key(k):
+    """'F#' -> 'F#/Gb' agar tampil di combobox; 'Am' -> 'A' (root sama)."""
+    if k in tr.KEY_DISPLAY:
+        return k
+    pc = tr.key_to_pc(k)
+    return tr.KEY_DISPLAY[pc] if pc is not None else k
 
 
 def _open_file(input_txt):
@@ -157,8 +184,19 @@ def _do_transpose(ctx, input_txt, output_txt, from_var, to_var, shift_var,
     text = input_txt.get('1.0', 'end').strip()
     if not text:
         messagebox.showwarning('Belum ada sheet',
-                               'Tempel dulu sheet chord lagunya (atau klik '
-                               '"Muat Contoh").')
+                               'Tempel dulu sheet chord lagunya (atau pilih '
+                               '"Contoh lagu" lalu klik "Muat Contoh").')
+        return
+    if not tr.has_any_chord(text):
+        messagebox.showwarning(
+            'Tidak ada chord yang dikenali',
+            'Sheet ini tampaknya tidak memuat chord.\n\n'
+            'Format yang didukung:\n'
+            '- chord di atas lirik:  C   G   lalu baris liriknya\n'
+            '- chord sejajar lirik:  "C  G  lirik baris ini"\n'
+            '- chord dalam kurung:   "lirik [Am] lirik"\n'
+            '- huruf besar atau kecil: Am / am, F#m / f#m\n\n'
+            'Pastikan chord ditulis seperti C, G, Am, F, Dm, G7, Cmaj7...')
         return
     from_key = _parse_key(from_var.get())
     if from_key is None:

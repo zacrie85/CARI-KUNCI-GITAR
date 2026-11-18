@@ -76,14 +76,61 @@ def use_flats_for(key_pc):
 
 # ---------------------------------------------------------------- chord
 def parse_chord(token):
-    """Token -> (root, suffix, bass) atau None bukan chord."""
+    """Token -> (root, suffix, bass) atau None bukan chord.
+
+    Chord huruf kecil DENGAN suffix kualitas juga diterima (am, em7,
+    f#m, cmaj7, b7...). Satu huruf kecil polos ('a', 'c', 'e') tetap
+    dianggap lirik supaya kata seperti itu tidak salah geser."""
     t = token.strip()
     if not t or t.upper() in ('N.C.', 'NC', 'N/C'):
         return None
     m = CHORD_RE.match(t)
-    if not m:
-        return None
-    return m.group(1), m.group(2) or '', m.group(3)
+    if m:
+        return m.group(1), m.group(2) or '', m.group(3)
+    if t[0] in 'abcdefg' and len(t) >= 2:
+        m2 = CHORD_RE.match(t[0].upper() + t[1:])
+        if m2 and m2.group(2):
+            return m2.group(1), m2.group(2) or '', m2.group(3)
+    return None
+
+
+def has_any_chord(text):
+    """True bila sheet memuat minimal satu chord yang dikenali."""
+    for line in text.splitlines():
+        for tok in line.split():
+            if parse_chord(tok.strip(PUNCT_CHARS)):
+                return True
+    return False
+
+
+# ---- deteksi baris chord (untuk chord huruf kecil polos, gaya WA) ----
+_STRUCTURAL_WORDS = {'intro', 'reff', 'chorus', 'verse', 'musik',
+                     'interlude', 'intermek', 'solo', 'bridge', 'coda',
+                     'adlib', 'outro', 'end', 'kunci', 'asli', 'asal',
+                     'modulasi', 'n.c.', 'nc'}
+_SINGLE_LOW = re.compile(r'^([a-g])$')
+
+
+def _is_structural(tok):
+    core = tok.strip(PUNCT_CHARS).lower()
+    return (not core) or core in _STRUCTURAL_WORDS
+
+
+def _looks_like_chord_line(line):
+    """True bila baris tampak sebagai BARIS CHORD: memuat >= 1 chord
+    dikenali dan tidak ada kata lirik panjang. Dipakai supaya chord
+    huruf kecil polos ('intro : am g c f') tetap digeser, sementara
+    kata lirik seperti 'g' di tengah kalimat tetap aman."""
+    toks = [t for t in line.split() if t.strip()]
+    if not toks:
+        return False
+    n_strict = 0
+    for t in toks:
+        if parse_chord(t):
+            n_strict += 1
+        elif not _is_structural(t) and not _SINGLE_LOW.match(t):
+            return False
+    return n_strict >= 1
 
 
 def transpose_chord_name(chord, semitones, use_flats=False):
@@ -101,22 +148,31 @@ def transpose_chord_name(chord, semitones, use_flats=False):
     return out
 
 
-def _transpose_token(token, semitones, use_flats):
-    """Transpose token bila chord; pertahankan tanda baca di sekelilingnya."""
+def _transpose_token(token, semitones, use_flats, aggressive=False):
+    """Transpose token bila chord; pertahankan tanda baca di sekelilingnya.
+    Mode agresif (baris chord) juga menerima huruf kecil polos 'g' -> 'A'."""
     pre, core, post = '', token, ''
     stripped = token.strip(PUNCT_CHARS)
     if stripped and (token != stripped):
         idx = token.find(stripped)
         pre, core, post = token[:idx], stripped, token[idx + len(stripped):]
     if parse_chord(core) is None:
+        if aggressive:
+            m = _SINGLE_LOW.match(core)
+            if m:
+                return (pre + transpose_chord_name(core.upper(), semitones,
+                                                   use_flats) + post)
         return token
     return pre + transpose_chord_name(core, semitones, use_flats) + post
 
 
-def transpose_line(line, semitones, use_flats=False):
+def transpose_line(line, semitones, use_flats=False, aggressive=None):
+    if aggressive is None:
+        aggressive = _looks_like_chord_line(line)
     parts = _TOKEN_SPLIT.split(line)
     return ''.join(
-        p if not p.strip() else _transpose_token(p, semitones, use_flats)
+        p if not p.strip() else
+        _transpose_token(p, semitones, use_flats, aggressive)
         for p in parts
     )
 

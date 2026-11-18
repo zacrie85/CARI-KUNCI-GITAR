@@ -9,6 +9,8 @@ Aplikasi deteksi & transposisi chord gitar untuk Windows
   "Pujaan Hati" (Kangen Band) aslinya kunci C; jika kamu ingin
   memainkannya dari kunci D, aplikasi menggeser seluruh chord:
   C G Am Em F Dm  ->  D A Bm F#m G Em
+  Pustaka contoh di tab Transposisi kini berisi 7 lagu (Pujaan
+  Hati + lagu tradisional + template kosong), bukan cuma satu.
 - SEMUA KUNCI ALTERNATIF: menampilkan lagu yang sama di 12 kunci.
 - SARAN CAPO: misal kunci D cukup pasang capo fret 2 lalu pakai
   bentuk chord kunci C.
@@ -116,6 +118,19 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
 - Transposisi juga bekerja untuk sheet dari situs chord: salin
   teksnya (termasuk lirik) lalu tempel di tab Transposisi. Kata
   lirik tidak akan ikut tergeser, hanya chord-nya.
+- PUSTAKA CONTOH LAGU (v1.0.4): dropdown "Contoh lagu" di tab
+  Transposisi berisi 7 pilihan — Pujaan Hati (Kangen Band), Rasa
+  Sayange, Gambang Suling, Ampar-Ampar Pisang, Suwe Ora Jamu,
+  Bintang Kecil, dan Template Sheet Kosong untuk lagu sendiri.
+  Klik "Muat Contoh" -> lagu terpilih terisi dan "Kunci asal"
+  otomatis mengikuti header lagunya.
+- FORMAT SHEET YANG DIDUKUNG: chord di atas lirik, chord sejajar
+  lirik ("C  G  lirik"), chord dalam kurung ("lirik [Am] lirik"),
+  dan chord huruf kecil dengan suffix (am, em7, f#m, cmaj7) —
+  gaya yang sering muncul di situs chord atau WhatsApp. Satu
+  huruf kecil polos (a, c, e) tetap dianggap lirik.
+- Jika tidak ada satupun chord dikenali, muncul peringatan yang
+  menjelaskan format yang benar — hasil lama tidak ditimpa.
 - Setelah transpose, lihat panel "Ilustrasi chord lagu ini" di
   bawah hasil: diagram fretboard untuk chord-chord unik dalam
   lagu (termasuk bentuk barre otomatis untuk chord seperti

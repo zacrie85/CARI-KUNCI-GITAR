@@ -7,7 +7,7 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.3'
+APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.4'
 
 # ------------------------------------------------------------ palet tema
 BG = '#120A0E'          # latar sangat gelap bernuansa maroon

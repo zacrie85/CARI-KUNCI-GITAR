@@ -53,6 +53,173 @@ SAMPLE_SONGS = {
     'Pujaan Hati - Kangen Band (Kunci C)': SAMPLE_PUJAAN_HATI,
 }
 
+# Lagu tradisional (domain publik, lirik bebas digandakan).
+# Chord adalah susunan sederhana ChordKu untuk belajar transposisi.
+SAMPLE_RASA_SAYANGE = """RASA SAYANGE - Lagu Tradisional Maluku
+Kunci Asli: G
+(Lagu tradisional, domain publik - susunan chord ChordKu)
+
+Intro : G Em Am D G
+
+G         Em
+rasa sayange.. rasa sayange
+Am           D        G
+eee.. rasa sayang sayange..
+G         Em
+rasa sayange.. rasa sayange
+Am           D        G
+eee.. rasa sayang sayange..
+
+Reff:
+C           D
+mana bisa hancur hatiku
+G          Em
+walau jauh di perantauan
+C           D
+mana bisa hilang kasihku
+G      D        G
+walau jauh di perantauan..
+
+Musik : G Em Am D G
+"""
+
+SAMPLE_GAMBANG_SULING = """GAMBANG SULING - Lagu Tradisional Cirebon
+Kunci Asli: C
+(Lagu tradisional, domain publik - susunan chord ChordKu)
+
+Intro : C F G C
+
+C            F
+gambang suling.. sulingnya bwis
+G               C
+gambang suling sulingnya bwis..
+C            F
+kapal kencang nyang ke Cirebon
+G               C
+gambang suling sulingnya bwis..
+
+C            F
+gambang suling.. sulingnya bwis
+G               C
+gambang suling sulingnya bwis..
+C            F
+kapal kencang nyang ke Cirebon
+G               C
+gambang suling sulingnya bwis..
+
+Musik : C F G C
+"""
+
+SAMPLE_AMPAR_PISANG = """AMPAR-AMPAR PISANG - Lagu Tradisional Maluku
+Kunci Asli: D
+(Lagu tradisional, domain publik - susunan chord ChordKu)
+
+Intro : D A G D
+
+D              A
+ampar ampar pisang..
+G                D
+pisangku ku makan..
+D              A
+kulitnya kubuang keluar..
+G           A        D
+terkambil macang..
+
+D              A
+macang datang memakan..
+G                D
+sisa pisangku tu sanang..
+D              A
+ampar ampar pisang..
+G           A        D
+pisangku ku makan..
+
+Musik : D A G D
+"""
+
+SAMPLE_SUWE_ORA_JAMU = """SUWE ORA JAMU - Lagu Tradisional Jawa
+Kunci Asli: C
+(Lagu tradisional, domain publik - susunan chord ChordKu)
+
+Intro : C F G C
+
+C            F
+suwe ora jamu..
+G              C
+jamu godhong telo..
+C            F
+suwe ora ketemu..
+G          C
+kumpul tang gapura..
+
+C            F
+suwe ora jamu..
+G              C
+jamu godhong kates..
+C            F
+suwe ora ketemu..
+G          C
+kapan ketemu maneh..
+
+Musik : C F G C
+"""
+
+SAMPLE_BINTANG_KECIL = """BINTANG KECIL - Lagu Anak Tradisional
+Kunci Asli: C
+(Lagu tradisional, domain publik - susunan chord ChordKu)
+
+Intro : C F G C
+
+C             F
+bintang kecil..
+G             C
+di langit yang biru..
+C             F
+banyak sekali..
+G             C
+masing-masing berpendar..
+
+C             F
+bilang bintang..
+G             C
+ehem, ehem, ehem..
+C             F
+saling bersaut..
+G             C
+menembus angkasa..
+
+Musik : C F G C
+"""
+
+SAMPLE_TEMPLATE = """TEMPLATE - SHEET CHORD LATIHAN
+Kunci Asli: C
+(Isi dengan lagumu sendiri: chord boleh di atas lirik,
+ sejajar dengan lirik, atau di dalam kurung [Am])
+
+Intro : C G Am F
+
+C        G
+tulis lirik bait pertama di sini
+Am        F
+chord bisa sejajar lirik atau di atasnya
+
+Reff:
+C      G
+lirik reff baris satu
+Am       F        G        C
+lirik reff baris dua, chord di dalam baris
+"""
+
+SAMPLE_SONGS = {
+    'Pujaan Hati - Kangen Band (Kunci C)': SAMPLE_PUJAAN_HATI,
+    'Rasa Sayange - Trad. Maluku (Kunci G)': SAMPLE_RASA_SAYANGE,
+    'Gambang Suling - Trad. Cirebon (Kunci C)': SAMPLE_GAMBANG_SULING,
+    'Ampar-Ampar Pisang - Trad. Maluku (Kunci D)': SAMPLE_AMPAR_PISANG,
+    'Suwe Ora Jamu - Trad. Jawa (Kunci C)': SAMPLE_SUWE_ORA_JAMU,
+    'Bintang Kecil - Lagu Anak Trad. (Kunci C)': SAMPLE_BINTANG_KECIL,
+    'Template Sheet Kosong (Kunci C)': SAMPLE_TEMPLATE,
+}
+
 # ------------------------------------------------------------- kamus jari
 # Format: string 6 digit, urutan senar low-E A D G B e.
 # 'x' = senar tidak dibunyikan, angka = posisi fret.
