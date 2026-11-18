@@ -40,8 +40,11 @@ Kunci D : Intro : D  A  Bm  F#m G  D  Em  A
   runner Windows dan melampirkan `ChordKu.exe` ke Release.
 - **Manual**: di Windows jalankan **`build_exe.bat`** → hasilnya
   `dist/ChordKu.exe` (PyInstaller onefile, windowed).
-- Opsional: letakkan `ffmpeg.exe` di sebelah `ChordKu.exe` agar deteksi bisa
-  memproses MP3/MP4/M4A (tanpa ffmpeg hanya file `.wav`).
+- **ffmpeg ter-bundle (v1.0.1+)**: `ChordKu.exe` membawa `ffmpeg.exe` di
+  dalamnya (`--add-binary` PyInstaller) — deteksi MP3/WEBM/M4A/FLAC dan
+  konversi MP3 langsung jalan tanpa instalasi apa pun. Saat build dari
+  sumber, `build_exe.bat` dan CI mengunduh ffmpeg otomatis lalu
+  membundle-nya ke dalam exe.
 
 ## 🎵 Alur YouTube
 

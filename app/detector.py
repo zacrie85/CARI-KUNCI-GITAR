@@ -30,9 +30,19 @@ MIN_SEG_SEC = 0.8
 
 # ---------------------------------------------------------------- audio I/O
 def find_ffmpeg():
+    """
+    Cari ffmpeg dengan urutan: PATH sistem -> ter-bundle di dalam
+    ChordKu.exe (sys._MEIPASS, v1.0.1+) -> di sebelah aplikasi.
+    """
     exe = shutil.which('ffmpeg')
     if exe:
         return exe
+    import sys
+    meipass = getattr(sys, '_MEIPASS', None)
+    if meipass:
+        bundled = os.path.join(meipass, 'ffmpeg.exe')
+        if os.path.isfile(bundled):
+            return bundled
     local = os.path.join(app_dir(), 'ffmpeg.exe')
     return local if os.path.isfile(local) else None
 

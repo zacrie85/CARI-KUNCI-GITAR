@@ -7,7 +7,7 @@ from tkinter import ttk, messagebox
 
 from .database import SongDB, load_config, save_config
 
-APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0'
+APP_TITLE = 'CARI KUNCI GITAR (ChordKu) v1.0.1'
 ACCENT = '#2563EB'
 ACCENT_DARK = '#1D4ED8'
 BG = '#F5F7FB'

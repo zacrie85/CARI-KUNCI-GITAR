@@ -26,8 +26,24 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build ChordKu.exe
-        run: pyinstaller --noconfirm --onefile --windowed --name ChordKu --icon icon.ico chordku.py
+      - name: Download ffmpeg (static build, akan dibundle ke dalam exe)
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-win64-gpl.zip" -OutFile ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffbin
+          Copy-Item "ffbin\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe" -Destination ffmpeg.exe
+          "ffmpeg.exe siap: $([math]::Round((Get-Item ffmpeg.exe).Length / 1MB, 1)) MB"
+
+      - name: Build ChordKu.exe (ffmpeg ter-bundle di dalam exe)
+        shell: pwsh
+        run: |
+          $pyi = @('--noconfirm','--onefile','--windowed','--name','ChordKu','--icon','icon.ico')
+          if (Test-Path ffmpeg.exe) {
+            $pyi += @('--add-binary','ffmpeg.exe;.')
+          } else {
+            Write-Host 'PERINGATAN: ffmpeg.exe tidak tersedia, build TANPA bundling'
+          }
+          $pyi += 'chordku.py'
+          pyinstaller @pyi
 
       - name: Smoke test (CLI transpose)
         run: python chordku.py --cli-transpose samples/pujaan_hati.txt --from C --to D

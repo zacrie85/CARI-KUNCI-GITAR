@@ -65,10 +65,14 @@ d. Catatan SmartScreen: saat pertama dibuka, pilih
 - Hasil: urutan chord berwaktu + estimasi kunci lagu.
 - Klik "Kirim ke Transposisi" untuk menggeser hasil deteksi ke
   kunci lain.
-- KONVERSI AUDIO butuh FFMPEG. Kalau deteksi file non-wav gagal:
-  1. Unduh ffmpeg dari https://ffmpeg.org/download.html atau
-     https://github.com/BtbN/FFmpeg-Builds/releases
-  2. Salin ffmpeg.exe ke sebelah ChordKu.exe (atau tambahkan ke
+- KONVERSI AUDIO: sejak v1.0.1, ChordKu.exe sudah MEMBAWA ffmpeg
+  sendiri di dalamnya (di-bundle saat build), jadi file MP3, M4A,
+  WEBM, FLAC, dan MP4 langsung bisa dideteksi tanpa memasang
+  apa pun, dan unduhan YouTube otomatis dikonversi ke MP3.
+- Jika kamu menjalankan dari KODE SUMBER (bukan exe) dan deteksi
+  file non-wav gagal:
+  1. Unduh ffmpeg dari https://github.com/BtbN/FFmpeg-Builds/releases
+  2. Salin ffmpeg.exe ke sebelah chordku.py (atau tambahkan ke
      PATH Windows).
 
 6) TIPS DETEKSI & TRANSPOSISI
@@ -101,7 +105,9 @@ config.json        : pengaturan (dibuat otomatis)
 ------------------------------------------------
 - "yt-dlp belum terpasang"  -> jalankan setup.bat, atau
   pip install -U yt-dlp
-- "Format .mp3 butuh ffmpeg" -> pasang ffmpeg (lihat bagian 5)
+- "Format .webm/.mp3 butuh ffmpeg" -> pakai ChordKu.exe v1.0.1
+  ke atas (ffmpeg sudah ter-bundle di dalam exe). Menjalankan
+  dari kode sumber? Pasang ffmpeg (lihat bagian 5).
 - Jendela tidak terbuka     -> jalankan dari CMD: python chordku.py
   agar pesan galat terlihat; kirim pesan galat itu saat melapor.
 - Hasil deteksi terdengar salah -> wajar (perkiraan). Ubah manual

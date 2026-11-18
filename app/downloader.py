@@ -67,33 +67,41 @@ def _progress_hook(cb):
     return hook
 
 
+def build_ydl_opts(out_dir, progress_cb=None):
+    """Opsi yt-dlp; ffmpeg (ter-bundle/terpasang) dipakai untuk konversi MP3."""
+    opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': os.path.join(out_dir, '%(title)s.%(ext)s'),
+        'noplaylist': True,
+        'quiet': True,
+        'no_warnings': True,
+        'progress_hooks': [_progress_hook(progress_cb)],
+    }
+    ffmpeg = find_ffmpeg()
+    if ffmpeg:
+        opts['ffmpeg_location'] = ffmpeg
+        opts['postprocessors'] = [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }]
+    return opts
+
+
 def download_audio(url, out_dir, progress_cb=None):
     """
     Unduh audio dari URL YouTube -> file MP3 di out_dir.
+    Sejak v1.0.1 ffmpeg ikut ter-bundle di dalam ChordKu.exe, jadi unduhan
+    otomatis dikonversi ke MP3 (tidak lagi tersimpan .webm).
     Return (path_file, judul). Melempar Exception dengan pesan Indonesia.
     """
     mode, ydl = find_ytdlp()
     if mode is None:
         raise RuntimeError(ydl)
     os.makedirs(out_dir, exist_ok=True)
-    ffmpeg = find_ffmpeg()
-
     outtmpl = os.path.join(out_dir, '%(title)s.%(ext)s')
     if mode == 'lib':
-        opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': outtmpl,
-            'noplaylist': True,
-            'quiet': True,
-            'no_warnings': True,
-            'progress_hooks': [_progress_hook(progress_cb)],
-        }
-        if ffmpeg:
-            opts['postprocessors'] = [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
+        opts = build_ydl_opts(out_dir, progress_cb)
         try:
             with ydl.YoutubeDL(opts) as y:
                 info = y.extract_info(url, download=True)
@@ -101,10 +109,12 @@ def download_audio(url, out_dir, progress_cb=None):
         except Exception as e:
             raise RuntimeError('Gagal mengunduh: %s' % str(e)[:300])
     else:
-        cmd = [ydl, '-x' if ffmpeg else '-f', 'bestaudio/best', '-o', outtmpl,
-               '--no-playlist', url]
+        ffmpeg = find_ffmpeg()
         if ffmpeg:
-            cmd = [ydl, '-x', '--audio-format', 'mp3', '-o', outtmpl,
+            cmd = [ydl, '-x', '--audio-format', 'mp3', '--ffmpeg-location',
+                   ffmpeg, '-o', outtmpl, '--no-playlist', url]
+        else:
+            cmd = [ydl, '-f', 'bestaudio/best', '-o', outtmpl,
                    '--no-playlist', url]
         res = subprocess.run(cmd, capture_output=True, timeout=3600)
         if res.returncode != 0:
